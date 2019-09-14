@@ -10,7 +10,7 @@ class configuration:
         self.root_dir = self.src_dir.parent
 
         # Important files
-        self.config_filepath = self.root_dir.joinpath("config.ini")
+        self.config_filepath = self.root_dir.joinpath("/home/qwer/Documents/QWER/config.ini")
 
         # INI parser
         self.parser = ConfigParser()
