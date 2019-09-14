@@ -17,6 +17,7 @@ class GameLogic:
         self.screenMidPointX = 320 ## this should be defined somewhere, screensizeX/2
         self.screenMidPointY = 240 ## this should be defined somewhere, screensizeY/2
 
+
         ##TODO
         self.ser = serial.Serial('/dev/ttyACM0')
         self.vision = vision.vision()
@@ -28,10 +29,17 @@ class GameLogic:
 
     ##TODO
     def rotateToFindBall(self):
+        rotateSpeed = 40
         while not self.ballFound:
-            self.ser.write(self.wheelLogic.rotateLeft(20).encode("utf-8"))
+            self.ser.write(self.wheelLogic.rotateLeft(rotateSpeed).encode("utf-8"))
             while self.ser.out_waiting != 0:
                 pass
+            if self.ballX <= self.screenMidPointX + 40 or self.ballX >= self.screenMidPointX-40:
+                rotateSpeed = 20
+            if self.ballX <= self.screenMidPointX + 15 or self.ballX >= self.screenMidPointX - 15:
+                rotateSpeed = 10
+            if self.ballX <= self.screenMidPointX + 5 or self.ballX >= self.screenMidPointX-5:
+                self.ballFound = True
     ##TODO
 
 
