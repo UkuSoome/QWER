@@ -1,9 +1,14 @@
-#from gameLogic import GameLogic
+from gameLogic import GameLogic
 from imageProccessing import ImageProcessing
+import threading
 
 
 
+imageHandler = ImageProcessing.ImageProccessing()
+gameHandler = GameLogic.GameLogic(imageHandler)
 
-img = ImageProcessing.ImageProccessing()
+imageThread = threading.Thread(target=imageHandler.run)
+imageThread.start()
 
-img.RENAMETHISWHENYOUKNOWWHATITDOES()
+gameThread = threading.Thread(target=gameHandler.run)
+gameThread.start()

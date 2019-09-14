@@ -12,11 +12,11 @@ class WheelMovementLogic:
         self.wheelTwoAngle = 120
         self.wheelThreeAngle = 0 ## this should be 240
 
-    def rotateLeft(self):
-        return "sd:10:10:10\r\n"
+    def rotateLeft(self,speed):
+        return "sd:" + str(speed) + str(speed) + str(speed) + "\r\n"
 
-    def rotateRight(self):
-        return "sd:-10:-10:-10\r\n"
+    def rotateRight(self,speed):
+        return "sd:" + str(speed) + str(speed) + str(speed) + "\r\n"
 
     def calculateOneWheelVelocity(self,wheelAngle,angle,speed):
         velocity = int(speed * math.cos(math.radians(angle-wheelAngle)))

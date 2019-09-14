@@ -39,7 +39,7 @@ class vision:
 
         return opening
 
-    def detect_ball(self,thresholded_image):
+    def detect_ball(self,mask):
         # Setup SimpleBlobDetector parameters.
         params = cv2.SimpleBlobDetector_Params()
         params.filterByColor = True
@@ -66,4 +66,4 @@ class vision:
             detector = cv2.SimpleBlobDetector(params)
         else:
             detector = cv2.SimpleBlobDetector_create(params)
-        return detector
+        return detector.detect(mask)
