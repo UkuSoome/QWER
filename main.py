@@ -1,11 +1,14 @@
 from gameLogic import GameLogic
 from imageProccessing import ImageProcessing
+from mainboardCommunication import MainboardCommunication
 import threading
-import time
 
 
-imageHandler = ImageProcessing.ImageProccessing()
-gameHandler = GameLogic.GameLogic(imageHandler)
+mainComm = MainboardCommunication.MainboardCommunication()
+
+imageHandler = ImageProcessing.ImageProccessing(mainComm)
+
+gameHandler = GameLogic.GameLogic(imageHandler, mainComm)
 
 imageThread = threading.Thread(target=imageHandler.run)
 imageThread.start()

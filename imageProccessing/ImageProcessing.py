@@ -7,20 +7,20 @@ import pyrealsense2 as rs
 
 class ImageProccessing:
 
-    def __init__(self):
+    def __init__(self,mainComm):
 
         ## muutujad
 
         self.conf = configuration.configuration()
         self.vision = vision.vision()
-        self.depth = 0
+        self.mainComm = mainComm
 
+        self.depth = 0
         self.ballX = 0
         self.ballY = 0
 
         self.gameStopped = False
 
-        #self.ballX, self.ballY, self.ballSize = self.vision.get_ball_information(self.ballCoordinates)
 
     def get_ball_information(self):
         return self.ballX, self.ballY
@@ -86,6 +86,8 @@ class ImageProccessing:
             key = cv2.waitKey(1)
 
             if key & 0xFF == ord("q"):
+                self.mainComm.sendBytes("sd:0:0:0")
+                self.mainComm.waitForAnswer()
                 self.gameStopped = True
                 break
 

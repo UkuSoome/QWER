@@ -4,9 +4,9 @@ import serial
 class MainboardCommunication:
 
     def __init__(self):
-        ## muutujad
 
-        self.ser = serial.Serial('/dev/ttyACM0')
+        self.ser = serial.Serial('/dev/ttyACM1')
+
 
     def readBytes(self):
         if self.ser.in_waiting:
@@ -22,3 +22,7 @@ class MainboardCommunication:
             msg = self.readBytes()
         print("Mainboard crashed.")
         return msg
+
+    def sendBytes(self, msg):
+        msg += "\r\n"
+        self.ser.write(msg.encode("utf-8"))
