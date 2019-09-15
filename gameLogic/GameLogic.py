@@ -28,20 +28,7 @@ class GameLogic:
         self.ballX, self.ballY = self.imgHandler.get_ball_information()
         ##TODO
 
-    def readBytes(self):
-        if self.ser.in_waiting:
-            line = self.ser.readline().decode("ascii")
-            return line.split(":")
-        return []
 
-    def waitForAnswer(self):
-        msg = self.readBytes()
-        for i in range(1000000):
-            if len(msg) > 0:
-                return msg
-            msg = self.readBytes()
-        print("Mainboard crashed.")
-        return msg
 
     ##TODO
     def rotateToFindBall(self):
