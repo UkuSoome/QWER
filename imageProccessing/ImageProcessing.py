@@ -13,11 +13,17 @@ class ImageProccessing:
 
         self.conf = configuration.configuration()
         self.vision = vision.vision()
-        self.attackBlueMask = np.zeros((5, 5))
         self.depth = 0
 
-    def getBallMask(self):
-        return self.attackBlueMask
+        self.ballX = 0
+        self.ballY = 0
+
+        self.gameStopped = False
+
+        #self.ballX, self.ballY, self.ballSize = self.vision.get_ball_information(self.ballCoordinates)
+
+    def get_ball_information(self):
+        return self.ballX, self.ballY
 
     def getDepth(self):
         return self.depth
@@ -44,7 +50,6 @@ class ImageProccessing:
             color_frame = frames.get_color_frame()
             depth_image = np.asanyarray(depth_frame.get_data()) ###  THIS IS UNUSED; WHAT DOES IT DOE FRED?!??!
             color_image = np.asanyarray(color_frame.get_data())
-            print(color_image.size)
 
             # Convert to HSV
 
@@ -55,28 +60,33 @@ class ImageProccessing:
             magenta_basket_mask = self.vision.apply_basket_color_filter(hsv, "magenta")
 
             # Depending on which side is the robot the correct mask is picked
-            self.attack_blue_mask = cv2.bitwise_or(blue_basket_mask, ball_color_mask)
+            attack_blue_mask = cv2.bitwise_or(blue_basket_mask, ball_color_mask)
+            kernel = np.ones((8,8),np.uint8)
+            erosion = cv2.morphologyEx(attack_blue_mask,cv2.MORPH_OPEN,kernel)
             attack_magenta_mask = cv2.bitwise_or(magenta_basket_mask, ball_color_mask) ### THIS IS UNUSED; WHAT DOES IT DOE FRED?!??!
 
 
             ###ball_detector = self.vision.detect_ball(attack_blue_mask) ## this might be needed later
 
             """keypoints = detector.detect(attack_blue_mask)"""
-            ball_keypoints = self.vision.detect_ball(self.attack_blue_mask)
+            ball_keypoints = self.vision.detect_ball(erosion)
 
             for keypoint in ball_keypoints:
-                x, y = keypoint.pt
-                self.depth = depth_frame.get_distance(int(float(x)), int(float(y)))
+                self.ballX = keypoint.pt[0]
+                self.ballY = keypoint.pt[1]
+                ##self.ballSize = keypoint.pt[2]
+                self.depth = depth_frame.get_distance(int(float(self.ballX)), int(float(self.ballY)))
                 """shape = vision.detect_shape(color_image, attack_blue_mask)"""
-                cv2.putText(color_image, str(round(self.depth, 3)) + " ball", (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX,
+                cv2.putText(color_image, str(round(self.depth, 3)) + " ball", (int(self.ballX), int(self.ballY)), cv2.FONT_HERSHEY_SIMPLEX,
                             1, (255, 255, 255))
-            im_with_keypoints = cv2.drawKeypoints(self.attack_blue_mask, ball_keypoints, np.array([]), (0, 0, 255),
+            im_with_keypoints = cv2.drawKeypoints(erosion, ball_keypoints, np.array([]), (0, 0, 255),
                                                   cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
             # Handle keyboard input
             key = cv2.waitKey(1)
 
             if key & 0xFF == ord("q"):
+                self.gameStopped = True
                 break
 
             # FPS display

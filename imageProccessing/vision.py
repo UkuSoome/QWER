@@ -17,6 +17,12 @@ class vision:
         self.blue_basket_color_range = conf.get("colors", conf.get("vision", "blue_basket_color"))
         self.magenta_basket_color_range = conf.get("colors", conf.get("vision", "magenta_basket_color"))
 
+    def get_ball_information(self, keypoint):
+        x = keypoint.pt[0]
+        y = keypoint.pt[1]
+        size = keypoint.pt[2]
+
+        return x, y, size
 
     def apply_ball_color_filter(self,hsv):
         # Apply ball color filter
@@ -46,7 +52,7 @@ class vision:
         params.blobColor = 255
         # Filter by Area.
         params.filterByArea = True
-        params.minArea = 70
+        params.minArea = 90
 
         # Filter by Circularity
         params.filterByCircularity = True
