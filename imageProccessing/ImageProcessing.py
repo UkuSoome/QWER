@@ -22,8 +22,11 @@ class ImageProccessing:
         self.gameStopped = False
 
 
-    def get_ball_information(self):
-        return self.ballX, self.ballY
+    def get_ballX(self):
+        return self.ballX
+    def get_ballY(self):
+        return self.ballY
+
 
     def getDepth(self):
         return self.depth

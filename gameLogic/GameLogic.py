@@ -17,22 +17,19 @@ class GameLogic:
 
 
 
-        self.ballX, self.ballY = self.imgHandler.get_ball_information()
+        self.ballX = 0
 
 
     ##TODO
     def rotateToFindBall(self):
         rotateSpeed = 10
         while not self.ballFound:
-            self.ballX, self.ballY = self.imgHandler.get_ball_information()
-            if self.screenMidPointX-5 <= self.ballX <= self.screenMidPointX+5:
-                self.mainComm.sendBytes(self.wheelLogic.motorsOff())
-                self.mainComm.waitForAnswer()
-                self.ballFound = True
-            if self.screenMidPointX+200 <= self.ballX:
+            self.ballX = self.imgHandler.get_ballX()
+
+            if self.screenMidPointX+100 <= self.ballX:
                 self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
                 self.mainComm.waitForAnswer()
-            elif self.screenMidPointX-200 >= self.ballX:
+            elif self.screenMidPointX-100 >= self.ballX:
                 self.mainComm.sendBytes(self.wheelLogic.rotateRight(rotateSpeed))
                 self.mainComm.waitForAnswer()
             else:
@@ -44,10 +41,13 @@ class GameLogic:
             elif self.screenMidPointX-50 <= self.ballX:
                 rotateSpeed = 5
 
+            if self.screenMidPointX-5 <= self.ballX <= self.screenMidPointX+5:
+                self.mainComm.sendBytes(self.wheelLogic.motorsOff())
+                self.mainComm.waitForAnswer()
+                self.ballFound = True
+
             if self.imgHandler.gameStopped:
                 break
-
-            #self.mainComm.waitForAnswer()
     ##TODO
 
 
