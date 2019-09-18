@@ -1,6 +1,5 @@
-import serial
 from wheelMovementLogic import WheelMovementLogic
-from mainboardCommunication import MainboardCommunication
+import math
 class GameLogic:
 
 
@@ -10,7 +9,7 @@ class GameLogic:
         self.wheelLogic = WheelMovementLogic.WheelMovementLogic()
         self.mainComm = mainComm
         self.ballFound = False
-
+        self.ballReached = False
 
         self.screenMidPointX = 320 ## this should be defined somewhere, screensizeX/2
         self.screenMidPointY = 240 ## this should be defined somewhere, screensizeY/2
@@ -18,30 +17,27 @@ class GameLogic:
 
 
         self.ballX = 0
+        self.ballY = 0
 
 
     ##TODO
     def rotateToFindBall(self):
-        rotateSpeed = 10
+        rotateSpeed = 20
         while not self.ballFound:
             self.ballX = self.imgHandler.get_ballX()
 
-            if self.screenMidPointX+100 <= self.ballX:
+            if self.screenMidPointX+200 <= self.ballX:
+                rotateSpeed = 10
                 self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
-                self.mainComm.waitForAnswer()
-            elif self.screenMidPointX-100 >= self.ballX:
+            elif self.screenMidPointX-200 >= self.ballX:
+                rotateSpeed = 10
                 self.mainComm.sendBytes(self.wheelLogic.rotateRight(rotateSpeed))
-                self.mainComm.waitForAnswer()
             else:
+                rotateSpeed = 20
                 self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
-                self.mainComm.waitForAnswer()
+            self.mainComm.waitForAnswer()
 
-            if self.screenMidPointX+50 <= self.ballX:
-                rotateSpeed = 5
-            elif self.screenMidPointX-50 <= self.ballX:
-                rotateSpeed = 5
-
-            if self.screenMidPointX-5 <= self.ballX <= self.screenMidPointX+5:
+            if self.screenMidPointX-15 <= self.ballX <= self.screenMidPointX+15:
                 self.mainComm.sendBytes(self.wheelLogic.motorsOff())
                 self.mainComm.waitForAnswer()
                 self.ballFound = True
@@ -49,6 +45,31 @@ class GameLogic:
             if self.imgHandler.gameStopped:
                 break
     ##TODO
+
+    def driveToBallInAStraightLine(self):
+        speed = 10
+        while not self.ballReached:
+            self.ballX = self.imgHandler.get_ballX()
+            self.ballY = self.imgHandler.get_ballY()
+            #angle = self.calculateAngleToBall()
+            #print(angle)
+            print(self.ballY)
+            #self.mainComm.sendBytes(self.wheelLogic.setSpeed(-90-angle,speed))
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(-90, speed))
+
+            if self.ballY >= 390:
+                print("leidsin palli")
+                #self.ballReached = True
+            if self.imgHandler.gameStopped:
+                break
+
+
+
+    def calculateAngleToBall(self):
+        a = self.ballY
+        c = math.sqrt((640-self.ballX) ** 2 + (480-self.ballY) ** 2)
+        angle = math.degrees(math.acos(a / c))
+        return int(angle)
 
 
 
@@ -58,6 +79,9 @@ class GameLogic:
 
             if not self.ballFound:
                 self.rotateToFindBall()
+            #if not self.ballReached:
+            #    self.driveToBallInAStraightLine()
+
 
 
 

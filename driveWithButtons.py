@@ -1,10 +1,8 @@
 from wheelMovementLogic import WheelMovementLogic
 from mainboardCommunication import MainboardCommunication
 
-import serial
 import cv2
 import numpy as np
-ser = serial.Serial('/dev/ttyACM1')
 
 
 
@@ -30,10 +28,9 @@ while 1:
     if key == ord('q'):
         mainbComm.sendBytes(wheelLogic.motorsOff())
         cv2.destroyAllWindows()
-        ser.close()
         break
     print(mainbComm.waitForAnswer())
 cv2.destroyAllWindows()
 mainbComm.sendBytes(wheelLogic.motorsOff())
 mainbComm.waitForAnswer()
-ser.close()
+

@@ -5,7 +5,7 @@ class MainboardCommunication:
 
     def __init__(self):
 
-        self.ser = serial.Serial('/dev/ttyACM1')
+        self.ser = serial.Serial('/dev/ttyACM0')
 
 
     def readBytes(self):
@@ -26,3 +26,6 @@ class MainboardCommunication:
     def sendBytes(self, msg):
         msg += "\r\n"
         self.ser.write(msg.encode("utf-8"))
+
+    def closeSerial(self):
+        self.ser.close()

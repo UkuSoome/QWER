@@ -2,8 +2,11 @@ import cv2
 from functools import partial
 from imageProccessing import configuration
 import numpy as np
+from wheelMovementLogic import WheelMovementLogic
+from mainboardCommunication import MainboardCommunication
 
-def doThresholdingChangeThisNameWhenYouKnowWhatItDoes():
+
+def Threshing():
     # Ask for color name to threshold
     color_name = input("Enter color name: ")
 
@@ -31,6 +34,9 @@ def doThresholdingChangeThisNameWhenYouKnowWhatItDoes():
     device = conf.get("vision", "video_capture_device")
     cap = cv2.VideoCapture(device)
 
+    wheelLogic = WheelMovementLogic.WheelMovementLogic()
+    mainbComm = MainboardCommunication.MainboardCommunication()
+
     while cap.isOpened():
         # Read BGR frameg
         _, bgr = cap.read()
@@ -50,10 +56,33 @@ def doThresholdingChangeThisNameWhenYouKnowWhatItDoes():
         cv2.imshow("frame", cv2.bitwise_and(bgr, bgr, mask=erosion))
 
         # Handle keyboard input
-        key = cv2.waitKey(1)
+        key = cv2.waitKey(1) & 0xff
+        if key == ord('w'):
+            mainbComm.sendBytes(wheelLogic.setSpeed(90, -10))
+            mainbComm.waitForAnswer()
+        if key == ord("s"):
+            mainbComm.sendBytes(wheelLogic.setSpeed(270, -10))
+            mainbComm.waitForAnswer()
+        if key == ord("a"):
+            mainbComm.sendBytes(wheelLogic.setSpeed(180, -10))
+            mainbComm.waitForAnswer()
+        if key == ord("d"):
+            mainbComm.sendBytes(wheelLogic.setSpeed(0, -10))
+            mainbComm.waitForAnswer()
+        if key == ord("c"):
+            mainbComm.sendBytes(wheelLogic.rotateLeft(10))
+            mainbComm.waitForAnswer()
+        if key == ord("v"):
+            mainbComm.sendBytes(wheelLogic.rotateRight(10))
+            mainbComm.waitForAnswer()
 
-        if key & 0xFF == ord("q"):
+
+        if key == ord('q'):
+            mainbComm.sendBytes(wheelLogic.motorsOff())
+            mainbComm.waitForAnswer()
+            cv2.destroyAllWindows()
             break
+
 
     # Overwrite color range
     conf.set("colors", color_name, color_range)
@@ -65,4 +94,4 @@ def doThresholdingChangeThisNameWhenYouKnowWhatItDoes():
 
 
 if __name__ == "__main__":
-    doThresholdingChangeThisNameWhenYouKnowWhatItDoes()
+    Threshing()

@@ -43,6 +43,7 @@ class ImageProccessing:
 
         pipeline = rs.pipeline()
         config = rs.config()
+        self.vision.configure_rs_camera()
         config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
         profile = pipeline.start(config) ####  THIS IS UNUSED; WHAT DOES IT DOE FRED?!??!
@@ -91,6 +92,7 @@ class ImageProccessing:
             if key & 0xFF == ord("q"):
                 self.mainComm.sendBytes("sd:0:0:0")
                 self.mainComm.waitForAnswer()
+                self.mainComm.closeSerial()
                 self.gameStopped = True
                 break
 
