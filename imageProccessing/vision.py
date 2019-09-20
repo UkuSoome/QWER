@@ -61,7 +61,7 @@ class vision:
            print("Controls as JSON: \n", serialized_string)
            """
 
-            with open('customhsv.json', 'r') as f:
+            with open('custompreset.json', 'r') as f:
                 distros_dict = json.load(f)
 
             as_json_object = json.loads(str(distros_dict).replace("'", '\"'))

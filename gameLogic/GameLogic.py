@@ -1,5 +1,6 @@
 from wheelMovementLogic import WheelMovementLogic
 import math
+import time
 class GameLogic:
 
 
@@ -22,25 +23,28 @@ class GameLogic:
 
     ##TODO
     def rotateToFindBall(self):
-        rotateSpeed = 20
         while not self.ballFound:
             self.ballX = self.imgHandler.get_ballX()
 
-            if self.screenMidPointX+200 <= self.ballX:
-                rotateSpeed = 10
-                self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
-            elif self.screenMidPointX-200 >= self.ballX:
-                rotateSpeed = 10
-                self.mainComm.sendBytes(self.wheelLogic.rotateRight(rotateSpeed))
-            else:
-                rotateSpeed = 20
-                self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
-            self.mainComm.waitForAnswer()
-
-            if self.screenMidPointX-15 <= self.ballX <= self.screenMidPointX+15:
+            if self.screenMidPointX - 15 <= self.ballX <= self.screenMidPointX + 15:
+                print("leidsin palli")
                 self.mainComm.sendBytes(self.wheelLogic.motorsOff())
                 self.mainComm.waitForAnswer()
                 self.ballFound = True
+                break
+
+            if self.ballX <= self.screenMidPointX+285:
+                rotateSpeed = 7
+                self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
+            elif self.screenMidPointX-315 <= self.ballX:
+                rotateSpeed = 7
+                self.mainComm.sendBytes(self.wheelLogic.rotateRight(rotateSpeed))
+            else:
+                rotateSpeed = 15
+                self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
+            self.mainComm.waitForAnswer()
+
+
 
             if self.imgHandler.gameStopped:
                 break
@@ -74,11 +78,12 @@ class GameLogic:
 
 
     def run(self):
-
+        time.sleep(3)
         while not self.imgHandler.gameStopped:
-
             if not self.ballFound:
                 self.rotateToFindBall()
+
+
             #if not self.ballReached:
             #    self.driveToBallInAStraightLine()
 

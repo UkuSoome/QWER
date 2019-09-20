@@ -1,36 +1,77 @@
 from wheelMovementLogic import WheelMovementLogic
-from mainboardCommunication import MainboardCommunication
+
 
 import cv2
 import numpy as np
 
+from gameLogic import GameLogic
+from imageProccessing import ImageProcessing
+from mainboardCommunication import MainboardCommunication
+import threading
+import time
 
 
-frame = np.zeros((200,200))
-cv2.imshow("frame",frame)
+
+
+
+
+#frame2 = np.zeros((200,200))
+#cv2.imshow("frame2",frame2)
 wheelLogic = WheelMovementLogic.WheelMovementLogic()
-mainbComm = MainboardCommunication.MainboardCommunication()
+
+mainComm = MainboardCommunication.MainboardCommunication()
+
+
+imageHandler = ImageProcessing.ImageProccessing(mainComm)
+
+
+
+imageThread = threading.Thread(target=imageHandler.run)
+
+
+imageThread.start()
+time.sleep(2)
+#gameHandler = GameLogic.GameLogic(imageHandler, mainComm,wheelLogic)
+#gameThread = threading.Thread(target=gameHandler.run)
+#gameThread.start()
 while 1:
-    key = cv2.waitKey(0) & 0xff
-    print(key)
+    key = imageHandler.key
     if key == ord('w'):
-        mainbComm.sendBytes(wheelLogic.setSpeed(90,-40))
+        print(key)
+        mainComm.sendBytes(wheelLogic.setSpeed(90,-100))
+        #mainComm.waitForAnswer()
     if key == ord("s"):
-        mainbComm.sendBytes(wheelLogic.setSpeed(270,-40))
+        mainComm.sendBytes(wheelLogic.setSpeed(270,-100))
+        #mainComm.waitForAnswer()
     if key == ord("a"):
-        mainbComm.sendBytes(wheelLogic.setSpeed(180,-40))
+        mainComm.sendBytes(wheelLogic.setSpeed(180,-100))
+        #mainComm.waitForAnswer()
     if key == ord("d"):
-        mainbComm.sendBytes(wheelLogic.setSpeed(0,-40))
+        mainComm.sendBytes(wheelLogic.setSpeed(0,-100))
+        #mainComm.waitForAnswer()
     if key == ord("c"):
-        mainbComm.sendBytes(wheelLogic.rotateLeft(40))
+        mainComm.sendBytes(wheelLogic.rotateLeft(40))
+        #mainComm.waitForAnswer()
     if key == ord("v"):
-        mainbComm.sendBytes(wheelLogic.rotateRight(40))
+        mainComm.sendBytes(wheelLogic.rotateRight(40))
+        #mainComm.waitForAnswer()
+    #if key == ord('b'):
+    #    gameHandler.rotateSpeed = 0
+   # if key == ord('n'):
+    #    gameHandler.rotateSpeed = 20
+    #if key == ord('k'):
+    #    mainComm.ser.write('d:1000\r\n'.encode("utf-8"))
+    #if key == ord('l'):
+    #    mainComm.ser.write('d:1200\r\n'.encode("utf-8"))
+
     if key == ord('q'):
-        mainbComm.sendBytes(wheelLogic.motorsOff())
+        mainComm.sendBytes(wheelLogic.motorsOff())
+        mainComm.waitForAnswer()
         cv2.destroyAllWindows()
         break
-    print(mainbComm.waitForAnswer())
+    print(mainComm.waitForAnswer())
+
 cv2.destroyAllWindows()
-mainbComm.sendBytes(wheelLogic.motorsOff())
-mainbComm.waitForAnswer()
+mainComm.sendBytes(wheelLogic.motorsOff())
+mainComm.waitForAnswer()
 

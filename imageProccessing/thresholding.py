@@ -1,20 +1,23 @@
 import cv2
 from functools import partial
+from imageProccessing import vision
 from imageProccessing import configuration
-import numpy as np
-from wheelMovementLogic import WheelMovementLogic
 from mainboardCommunication import MainboardCommunication
+from wheelMovementLogic import WheelMovementLogic
+import numpy as np
+import pyrealsense2 as rs
 
 
-def Threshing():
+def Tresh():
     # Ask for color name to threshold
     color_name = input("Enter color name: ")
-
+    conf = configuration.configuration()
+    vis = vision.vision()
     # Try to get saved range from config file, use whole color space as default if not saved
     # Color ranges are saved as { "min": (hmin, smin, vmin), "max": (hmax, smax, vmax) }
-    conf = configuration.configuration()
-    color_range = conf.get("colors", color_name, default={ "min": (0, 0, 0), "max": (179, 255, 255) })
-
+    color_range = conf.get("colors", color_name, default={"min": (0, 0, 0), "max": (179, 255, 255)})
+    mainComm = MainboardCommunication.MainboardCommunication()
+    wheelLogic = WheelMovementLogic.WheelMovementLogic()
     # Create trackbars (sliders) for HSV channels
     cv2.namedWindow("frame")
 
@@ -31,67 +34,69 @@ def Threshing():
     cv2.createTrackbar("v_max", "frame", color_range["max"][2], 255, partial(update_range, "max", 2))
 
     # Capture camera
-    device = conf.get("vision", "video_capture_device")
-    cap = cv2.VideoCapture(device)
+    ##device = conf.get("vision", "video_capture_device")
+    ##cap = cv2.VideoCapture(device)
 
-    wheelLogic = WheelMovementLogic.WheelMovementLogic()
-    mainbComm = MainboardCommunication.MainboardCommunication()
+    pipeline = rs.pipeline()
+    config = rs.config()
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    vis.configure_rs_camera()
+    pipeline.start(config)
 
-    while cap.isOpened():
-        # Read BGR frameg
-        _, bgr = cap.read()
-
+    ##while cap.isOpened():
+    while True:
+        # Read BGR frame
+        ##_, bgr = cap.read()
+        frames = pipeline.wait_for_frames()
+        color_frame = frames.get_color_frame()
+        color_image = np.asanyarray(color_frame.get_data())
         # Convert to HSV
-        hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
 
+        hsv = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)
 
+        # TODO: also apply all the filters you do when actually running the robot (eg noise removal)
         # Apply color mask to HSV image
         mask = cv2.inRange(hsv, color_range["min"], color_range["max"])
 
-        kernel = np.ones((8, 8), np.uint8)
-        erosion = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-
-
         # Display filtered image
-        cv2.imshow("frame", cv2.bitwise_and(bgr, bgr, mask=erosion))
+        cv2.imshow("frame", cv2.bitwise_and(color_image, color_image, mask=mask))
 
         # Handle keyboard input
-        key = cv2.waitKey(1) & 0xff
-        if key == ord('w'):
-            mainbComm.sendBytes(wheelLogic.setSpeed(90, -10))
-            mainbComm.waitForAnswer()
-        if key == ord("s"):
-            mainbComm.sendBytes(wheelLogic.setSpeed(270, -10))
-            mainbComm.waitForAnswer()
-        if key == ord("a"):
-            mainbComm.sendBytes(wheelLogic.setSpeed(180, -10))
-            mainbComm.waitForAnswer()
-        if key == ord("d"):
-            mainbComm.sendBytes(wheelLogic.setSpeed(0, -10))
-            mainbComm.waitForAnswer()
-        if key == ord("c"):
-            mainbComm.sendBytes(wheelLogic.rotateLeft(10))
-            mainbComm.waitForAnswer()
-        if key == ord("v"):
-            mainbComm.sendBytes(wheelLogic.rotateRight(10))
-            mainbComm.waitForAnswer()
+        key = cv2.waitKey(1)
 
-
-        if key == ord('q'):
-            mainbComm.sendBytes(wheelLogic.motorsOff())
-            mainbComm.waitForAnswer()
-            cv2.destroyAllWindows()
+        if key & 0xFF == ord("q"):
+            mainComm.sendBytes(wheelLogic.motorsOff())
+            mainComm.waitForAnswer()
+            mainComm.closeSerial()
             break
-
+        if key == ord('w'):
+            print(key)
+            mainComm.sendBytes(wheelLogic.setSpeed(90, -10))
+            mainComm.waitForAnswer()
+        if key == ord("s"):
+            mainComm.sendBytes(wheelLogic.setSpeed(270, -10))
+            mainComm.waitForAnswer()
+        if key == ord("a"):
+            mainComm.sendBytes(wheelLogic.setSpeed(180, -10))
+            mainComm.waitForAnswer()
+        if key == ord("d"):
+            mainComm.sendBytes(wheelLogic.setSpeed(0, -10))
+            mainComm.waitForAnswer()
+        if key == ord("c"):
+            mainComm.sendBytes(wheelLogic.rotateLeft(10))
+            mainComm.waitForAnswer()
+        if key == ord("v"):
+            mainComm.sendBytes(wheelLogic.rotateRight(10))
 
     # Overwrite color range
     conf.set("colors", color_name, color_range)
     conf.save()
 
     # Exit cleanly
-    cap.release()
-    cv2.destroyAllWindows()
+    ##cap.release()
+    ##cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    Threshing()
+    Tresh()
