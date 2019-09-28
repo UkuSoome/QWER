@@ -1,5 +1,4 @@
 import json
-
 import cv2
 from imageProccessing import configuration
 import numpy as np
@@ -36,39 +35,15 @@ class vision:
             advnc_mode = rs.rs400_advanced_mode(dev)
             while not advnc_mode.is_enabled():
                 advnc_mode.toggle_advanced_mode(True)
-                time.sleep(5)
+                time.sleep(2)
                 # The 'dev' object will become invalid and we need to initialize it again
                 dev = self.find_compatible_camera()
                 advnc_mode = rs.rs400_advanced_mode(dev)
-
-            """
-           # To get the minimum and maximum value of each control use the mode value:
-           query_min_values_mode = 1
-           query_max_values_mode = 2
-
-           current_std_depth_control_group = advnc_mode.get_depth_control()
-
-           min_std_depth_control_group = advnc_mode.get_depth_control(query_min_values_mode)
-           max_std_depth_control_group = advnc_mode.get_depth_control(query_max_values_mode)
-
-           # Set some control with a new (median) value
-           current_std_depth_control_group.scoreThreshA = int(
-               (max_std_depth_control_group.scoreThreshA - min_std_depth_control_group.scoreThreshA) / 2)
-           advnc_mode.set_depth_control(current_std_depth_control_group)
-
-           # Serialize all controls to a Json string
-           serialized_string = advnc_mode.serialize_json()
-           print("Controls as JSON: \n", serialized_string)
-           """
 
             with open('custompreset.json', 'r') as f:
                 distros_dict = json.load(f)
 
             as_json_object = json.loads(str(distros_dict).replace("'", '\"'))
-
-            # We can also load controls from a json string
-            # The C++ JSON parser requires double-quotes for the json object so we need
-            #  to replace the single quote of the pythonic json to double-quotes
             json_string = str(as_json_object).replace("'", '\"')
             advnc_mode.load_json(json_string)
 
@@ -104,19 +79,19 @@ class vision:
         params.blobColor = 255
         # Filter by Area.
         params.filterByArea = True
-        params.minArea = 70
+        params.minArea = 20
 
         # Filter by Circularity
         params.filterByCircularity = True
-        params.minCircularity = 0.1
+        params.minCircularity = 0.01
 
         # Filter by Convexity
         params.filterByConvexity = True
-        params.minConvexity = 0.87
+        params.minConvexity = 0.1
 
         # Filter by Inertia
         params.filterByInertia = True
-        params.minInertiaRatio = 0.75
+        params.minInertiaRatio = 0.5
 
         # Create a detector with the parameters
         ver = (cv2.__version__).split('.')
@@ -133,10 +108,17 @@ class vision:
         font = cv2.FONT_HERSHEY_COMPLEX
 
         for cnt in contours:
+            x, y, w, h = cv2.boundingRect(cnt)
+            aspect_ratio = float(w) / h
 
-            if cv2.contourArea(cnt) > 300:
+            if aspect_ratio < 0.45:
                 rect = cv2.minAreaRect(cnt)
+                x_coordinate = rect[0][0]
+                y_coordinate = rect[1][0]
                 box = cv2.boxPoints(rect)
                 box = np.int0(box)
                 im = cv2.drawContours(thresholded_image, [box], 0, (100, 100, 255), 5)
                 area = cv2.contourArea(cnt)
+                return x_coordinate, y_coordinate
+
+        return -1,-1

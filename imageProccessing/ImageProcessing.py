@@ -10,16 +10,20 @@ class ImageProccessing:
     def __init__(self, mainComm):
 
         ## muutujad
-
         self.conf = configuration.configuration()
         self.vision = vision.vision()
         self.mainComm = mainComm
-
+        self.key = 0
+        self.basketX = 0
+        self.basketY = 0
         self.depth = 0
         self.ballX = 0
         self.ballY = 0
 
         self.gameStopped = False
+
+    def get_basketX(self):
+        return self.basketX
 
     def get_ballX(self):
         return self.ballX
@@ -30,11 +34,10 @@ class ImageProccessing:
     def getDepth(self):
         return self.depth
 
-    def run(self):
-        # Capture camera
-        # device = self.conf.get("vision", "video_capture_device")
-        # cap = cv2.VideoCapture(device)
+    def getBasketDepth(self):
+        return self.basket_depth
 
+    def run(self):
         # Frame timer for FPS display
         fps = 0
         frame_counter = 0
@@ -42,9 +45,10 @@ class ImageProccessing:
 
         pipeline = rs.pipeline()
         config = rs.config()
-        self.vision.configure_rs_camera()
+
         config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        self.vision.configure_rs_camera()
         pipeline.start(config)
 
         while True:
@@ -52,7 +56,7 @@ class ImageProccessing:
             frames = pipeline.wait_for_frames()
             depth_frame = frames.get_depth_frame()
             color_frame = frames.get_color_frame()
-            depth_image = np.asanyarray(depth_frame.get_data())  ###  THIS IS UNUSED; WHAT DOES IT DOE FRED?!??!
+            depth_image = np.asanyarray(depth_frame.get_data())
             color_image = np.asanyarray(color_frame.get_data())
 
             # Convert to HSV
@@ -65,15 +69,12 @@ class ImageProccessing:
 
             # Depending on which side is the robot the correct mask is picked
             attack_blue_mask = cv2.bitwise_xor(blue_basket_mask, ball_color_mask)
-            kernel = np.ones((8, 8), np.uint8)
-            #erosion = cv2.morphologyEx(attack_blue_mask, cv2.MORPH_OPEN, kernel)
             attack_magenta_mask = cv2.bitwise_or(magenta_basket_mask,
-                                                 ball_color_mask)  ### THIS IS UNUSED; WHAT DOES IT DOE FRED?!??!
+                                                 ball_color_mask)
 
-            ###ball_detector = self.vision.detect_ball(attack_blue_mask) ## this might be needed later
-
-            """keypoints = detector.detect(attack_blue_mask)"""
             ball_keypoints = self.vision.detect_ball(attack_blue_mask)
+            self.basketX, self.basketY = self.vision.detect_basket(attack_blue_mask)
+            #self.basket_depth = depth_frame.get_distance(int(float(self.basketX)), int(float(self.basketY)))
 
             for keypoint in ball_keypoints:
                 self.ballX = keypoint.pt[0]
@@ -88,16 +89,12 @@ class ImageProccessing:
                                                   cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
             # Handle keyboard input
-            key = cv2.waitKey(1)
+            self.key = cv2.waitKey(1) & 0xFF
 
-            if key & 0xFF == ord("q"):
-                self.mainComm.sendBytes("sd:0:0:0")
-                self.mainComm.waitForAnswer()
-                self.mainComm.closeSerial()
+            if self.key == ord("q"):
                 self.gameStopped = True
                 break
 
-            # FPS display
             frame_counter += 1
 
             if frame_counter % 10 == 0:
@@ -108,10 +105,6 @@ class ImageProccessing:
 
             cv2.putText(color_image, str(fps), (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
 
-            # Show frame
             #cv2.imshow("frame", color_image)
             cv2.imshow("ball_color", im_with_keypoints)
-
-        # Exit cleanly
-        # cap.release()
         cv2.destroyAllWindows()

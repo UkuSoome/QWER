@@ -2,14 +2,13 @@ from gameLogic import GameLogic
 from imageProccessing import ImageProcessing
 from mainboardCommunication import MainboardCommunication
 import threading
-import time
 from wheelMovementLogic import WheelMovementLogic
 
 
 wheelLogic = WheelMovementLogic.WheelMovementLogic()
 
 
-mainComm = MainboardCommunication.MainboardCommunication()
+mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0')
 
 imageHandler = ImageProcessing.ImageProccessing(mainComm)
 

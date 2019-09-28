@@ -8,9 +8,9 @@ class WheelMovementLogic:
 
     def __init__(self):
 
-        self.wheelOneAngle = 240 ## this should be 0
+        self.wheelOneAngle = 0 ## this should be 0
         self.wheelTwoAngle = 120
-        self.wheelThreeAngle = 0 ## this should be 240
+        self.wheelThreeAngle = 240 ## this should be 240
 
     def rotateLeft(self,speed):
         speedString = str(speed)
@@ -43,6 +43,11 @@ class WheelMovementLogic:
     def robotAngleDiagonally(self,speedX,speedY):
         robotDirectionAngle = math.atan2(speedY, speedX)
         return robotDirectionAngle
+
+    def rotateLeftWithBackWheel(self):
+        return "sd:10:0:0"
+    def rotateRightWithBackWheel(self):
+        return "sd:-10:0:0"
 
 
 
