@@ -80,8 +80,8 @@ class vision:
 
             closest_ball = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(closest_ball)
-            if area > 100:
-                print(area)
+            if area > 10:
+                #print(area)
                 contour_list.append(contour)
                 rect = cv2.minAreaRect(closest_ball)
                 box = cv2.boxPoints(rect)
@@ -94,42 +94,6 @@ class vision:
                 return x_coordinate, y_coordinate
         return -1, -1
 
-
-
-
-
-
-
-
-        """
-        # Setup SimpleBlobDetector parameters.
-        params = cv2.SimpleBlobDetector_Params()
-        params.filterByColor = True
-        params.blobColor = 255
-        # Filter by Area.
-        params.filterByArea = True
-        params.minArea = 20
-
-        # Filter by Circularity
-        params.filterByCircularity = True
-        params.minCircularity = 0.01
-
-        # Filter by Convexity
-        params.filterByConvexity = True
-        params.minConvexity = 0.1
-
-        # Filter by Inertia
-        params.filterByInertia = True
-        params.minInertiaRatio = 0.5
-
-        # Create a detector with the parameters
-        ver = (cv2.__version__).split('.')
-        if int(ver[0]) < 3:
-            detector = cv2.SimpleBlobDetector(params)
-        else:
-            detector = cv2.SimpleBlobDetector_create(params)
-        return detector.detect(mask)
-        """
     def detect_basket(self, in_mask, out_mask):
 
         contours, _ = cv2.findContours(in_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -137,9 +101,9 @@ class vision:
         font = cv2.FONT_HERSHEY_COMPLEX
 
         for cnt in contours:
+
             x, y, w, h = cv2.boundingRect(cnt)
             aspect_ratio = float(w) / h
-
             if aspect_ratio < 0.45:
                 rect = cv2.minAreaRect(cnt)
                 x_coordinate = rect[0][0]
@@ -149,5 +113,8 @@ class vision:
                 im = cv2.drawContours(out_mask, [box], 0, (100, 100, 255), 5)
                 area = cv2.contourArea(cnt)
                 return x_coordinate, y_coordinate
-
         return -1,-1
+
+    def calculate_distance_with_buffer(self, queue):
+        average = np.mean(queue)
+        return average

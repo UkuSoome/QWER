@@ -4,6 +4,7 @@ from imageProccessing import vision
 from imageProccessing import configuration
 import numpy as np
 import pyrealsense2 as rs
+from collections import deque
 
 class ImageProccessing:
 
@@ -18,6 +19,7 @@ class ImageProccessing:
         self.depth = 0
         self.ballX = 0
         self.ballY = 0
+
 
         self.gameStopped = False
 
@@ -49,8 +51,11 @@ class ImageProccessing:
         config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
         self.vision.configure_rs_camera()
         pipeline.start(config)
+        average_distance = 0
 
+        distance_buffer = [0,0,0,0,0]
         while True:
+
             # Read BGR frame
             frames = pipeline.wait_for_frames()
             depth_frame = frames.get_depth_frame()
@@ -73,25 +78,18 @@ class ImageProccessing:
             attack_magenta_mask = cv2.bitwise_or(magenta_basket_mask,
                                                  ball_color_mask)
 
-            #ball_keypoints = self.vision.detect_ball(attack_blue_mask)
             self.basketX, self.basketY = self.vision.detect_basket(blue_basket_mask,attack_blue_mask)
-            #self.basket_depth = depth_frame.get_distance(int(float(self.basketX)), int(float(self.basketY)))
             self.ballX, self.ballY = self.vision.detect_ball(ball_color_mask,attack_blue_mask)
 
+            if self.basketX != -1:
+                basket_distance = depth_frame.get_distance(int(float(self.basketX)), int(float(self.basketY)))
+                rounded_distance = round(basket_distance,3)
+                distance_buffer.append(rounded_distance)
+                distance_buffer.pop(0)
+                average_distance = self.vision.calculate_distance_with_buffer(distance_buffer)
 
-            """
-            for keypoint in ball_keypoints:
-                self.ballX = keypoint.pt[0]
-                self.ballY = keypoint.pt[1]
-                ##self.ballSize = keypoint.pt[2]
-                self.depth = depth_frame.get_distance(int(float(self.ballX)), int(float(self.ballY)))
-                #shape = vision.detect_shape(color_image, attack_blue_mask)
-                cv2.putText(color_image, str(round(self.depth, 3)) + " ball", (int(self.ballX), int(self.ballY)),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            1, (255, 255, 255))
-            im_with_keypoints = cv2.drawKeypoints(attack_blue_mask, ball_keypoints, np.array([]), (0, 0, 255),
-                                                  cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-            """
+            #cv2.line(attack_blue_mask, (320, 100), (320, 400), (100, 255, 180), 2)
+
             # Handle keyboard input
             self.key = cv2.waitKey(1) & 0xFF
 
@@ -107,7 +105,10 @@ class ImageProccessing:
                 frame_counter = 0
                 frame_counter_start = time.time()
 
-            cv2.putText(color_image, str(fps), (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
+            if self.ballX != -1:
+                cv2.putText(attack_blue_mask, str(round(average_distance,3)), (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 255, 255))
+
+            cv2.putText(attack_blue_mask, str(fps), (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
 
             #cv2.imshow("frame", color_image)
             cv2.imshow("ball_color", attack_blue_mask)
