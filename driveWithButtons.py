@@ -10,7 +10,7 @@ wheelLogic = WheelMovementLogic.WheelMovementLogic()
 mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0')
 
 
-imageHandler = ImageProcessing.ImageProccessing(mainComm)
+imageHandler = ImageProcessing.ImageProccessing()
 
 
 
@@ -48,5 +48,6 @@ while 1:
         mainComm.waitForAnswer()
     if key == ord('q'):
         break
-
+    #mainComm.sendBytes(wheelLogic.motorsOff())
+    #mainComm.waitForAnswer()
 

@@ -7,12 +7,11 @@ import pyrealsense2 as rs
 
 class ImageProccessing:
 
-    def __init__(self, mainComm):
+    def __init__(self):
 
         ## muutujad
         self.conf = configuration.configuration()
         self.vision = vision.vision()
-        self.mainComm = mainComm
         self.key = 0
         self.basketX = 0
         self.basketY = 0
@@ -62,32 +61,37 @@ class ImageProccessing:
             # Convert to HSV
 
             hsv = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)
+            blurred_image = cv2.medianBlur(hsv,5)
 
-            ball_color_mask = self.vision.apply_ball_color_filter(hsv)
-            blue_basket_mask = self.vision.apply_basket_color_filter(hsv, "blue")
-            magenta_basket_mask = self.vision.apply_basket_color_filter(hsv, "magenta")
+            ball_color_mask = self.vision.apply_ball_color_filter(blurred_image)
+            blue_basket_mask = self.vision.apply_basket_color_filter(blurred_image, "blue")
+            magenta_basket_mask = self.vision.apply_basket_color_filter(blurred_image, "magenta")
+
 
             # Depending on which side is the robot the correct mask is picked
             attack_blue_mask = cv2.bitwise_xor(blue_basket_mask, ball_color_mask)
             attack_magenta_mask = cv2.bitwise_or(magenta_basket_mask,
                                                  ball_color_mask)
 
-            ball_keypoints = self.vision.detect_ball(attack_blue_mask)
-            self.basketX, self.basketY = self.vision.detect_basket(attack_blue_mask)
+            #ball_keypoints = self.vision.detect_ball(attack_blue_mask)
+            self.basketX, self.basketY = self.vision.detect_basket(blue_basket_mask,attack_blue_mask)
             #self.basket_depth = depth_frame.get_distance(int(float(self.basketX)), int(float(self.basketY)))
+            self.ballX, self.ballY = self.vision.detect_ball(ball_color_mask,attack_blue_mask)
 
+
+            """
             for keypoint in ball_keypoints:
                 self.ballX = keypoint.pt[0]
                 self.ballY = keypoint.pt[1]
                 ##self.ballSize = keypoint.pt[2]
                 self.depth = depth_frame.get_distance(int(float(self.ballX)), int(float(self.ballY)))
-                """shape = vision.detect_shape(color_image, attack_blue_mask)"""
+                #shape = vision.detect_shape(color_image, attack_blue_mask)
                 cv2.putText(color_image, str(round(self.depth, 3)) + " ball", (int(self.ballX), int(self.ballY)),
                             cv2.FONT_HERSHEY_SIMPLEX,
                             1, (255, 255, 255))
             im_with_keypoints = cv2.drawKeypoints(attack_blue_mask, ball_keypoints, np.array([]), (0, 0, 255),
                                                   cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-
+            """
             # Handle keyboard input
             self.key = cv2.waitKey(1) & 0xFF
 
@@ -106,5 +110,5 @@ class ImageProccessing:
             cv2.putText(color_image, str(fps), (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
 
             #cv2.imshow("frame", color_image)
-            cv2.imshow("ball_color", im_with_keypoints)
+            cv2.imshow("ball_color", attack_blue_mask)
         cv2.destroyAllWindows()

@@ -72,7 +72,36 @@ class vision:
 
         return opening
 
-    def detect_ball(self, mask):
+    def detect_ball(self, mask_in, mask):
+        contours, _ = cv2.findContours(mask_in, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contour_list = []
+        for contour in contours:
+            approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
+
+            closest_ball = max(contours, key=cv2.contourArea)
+            area = cv2.contourArea(closest_ball)
+            if area > 100:
+                print(area)
+                contour_list.append(contour)
+                rect = cv2.minAreaRect(closest_ball)
+                box = cv2.boxPoints(rect)
+                box = np.int0(box)
+
+                cv2.drawContours(mask, [box],0, (50, 100, 200), 2)
+                x_coordinate = rect[0][0]
+                y_coordinate = rect[0][1]
+
+                return x_coordinate, y_coordinate
+        return -1, -1
+
+
+
+
+
+
+
+
+        """
         # Setup SimpleBlobDetector parameters.
         params = cv2.SimpleBlobDetector_Params()
         params.filterByColor = True
@@ -100,10 +129,10 @@ class vision:
         else:
             detector = cv2.SimpleBlobDetector_create(params)
         return detector.detect(mask)
+        """
+    def detect_basket(self, in_mask, out_mask):
 
-    def detect_basket(self, thresholded_image):
-
-        contours, _ = cv2.findContours(thresholded_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(in_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         font = cv2.FONT_HERSHEY_COMPLEX
 
@@ -117,7 +146,7 @@ class vision:
                 y_coordinate = rect[1][0]
                 box = cv2.boxPoints(rect)
                 box = np.int0(box)
-                im = cv2.drawContours(thresholded_image, [box], 0, (100, 100, 255), 5)
+                im = cv2.drawContours(out_mask, [box], 0, (100, 100, 255), 5)
                 area = cv2.contourArea(cnt)
                 return x_coordinate, y_coordinate
 

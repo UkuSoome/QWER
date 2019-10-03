@@ -1,4 +1,5 @@
 from wheelMovementLogic import WheelMovementLogic
+from refHandler import RefHandler
 import math
 import time
 class GameLogic:
@@ -13,7 +14,8 @@ class GameLogic:
         self.ballReached = False
         self.basketCentered = False
         self.ballCentred = False
-
+        self.gameState = "PLAY"
+        self.refHandler = RefHandler.RefHandler(0, 0)
         self.screenMidPointX = 320 ##screenX/2
         self.screenMidPointY = 240 ##screenY/2
 
@@ -21,8 +23,50 @@ class GameLogic:
         self.ballX = 0
         self.ballY = 0
 
+    def run(self):
+        time.sleep(2)
+        self.mainComm.sendBytes('d:125')
+        while 1:
+            #if not self.ballFound:
+            #    self.rotateToFindBall()
+            if self.gameState == "PLAY":
+                if not self.ballReached:# and self.ballFound:
+                    self.driveToBall()
+                if self.ballReached and not self.ballCentred:
+                    self.centreTheBall()
+                if self.ballReached and not self.basketCentered:
+                    self.centreTheBasket()
+                if self.basketCentered:
+                    self.throwTheball()
 
-    ##TODO
+            if self.imgHandler.gameStopped:
+                self.mainComm.sendBytes(self.wheelLogic.motorsOff())
+                self.mainComm.waitForAnswer()
+                self.mainComm.closeSerial()
+                break
+
+    def handleMbCommands(self, msg):
+        if msg != None:
+            command = msg[0]
+            if command == "ref":
+                cmd = self.refHandler.handleMsg(msg[1])
+                # print(cmd)
+
+                if cmd == "START":
+                    self.gameState = "PLAY"
+
+                if cmd == "STOP":
+                    self.gameState = "STOP"
+
+                if cmd == "PING":
+                    print("Sending ACK")
+
+    def readMb(self):
+        mbMsg = self.mainComm.readBytes()
+
+        if len(mbMsg) > 0:
+            self.handleMbCommands(mbMsg)
+
     def rotateToFindBall(self):
         self.ballX = self.imgHandler.get_ballX()
 
@@ -62,13 +106,12 @@ class GameLogic:
             self.mainComm.sendBytes(self.wheelLogic.rotateRight(rotateSpeed))
             self.mainComm.waitForAnswer()
 
-    ##TODO
 
     def driveToBall(self):
         speed = 50
         angle = self.calculateAngleToBall()
 
-        if self.ballY >= 400:
+        if self.ballY >= 360:
             print("jõudsin pallini")
             self.mainComm.sendBytes(self.wheelLogic.motorsOff())
             self.mainComm.waitForAnswer()
@@ -105,35 +148,14 @@ class GameLogic:
             self.mainComm.sendBytes(self.wheelLogic.rotateRightWithBackWheel())
         elif basketX > self.screenMidPointX:
             self.mainComm.sendBytes(self.wheelLogic.rotateLeftWithBackWheel())
+        else:
+            self.mainComm.sendBytes(self.wheelLogic.rotateRightWithBackWheel())
         self.mainComm.waitForAnswer()
 
     def throwTheball(self):
         self.mainComm.sendBytes('d:200')
-        self.mainComm.sendBytes(self.wheelLogic.setSpeed(90,-20))
+        self.mainComm.sendBytes(self.wheelLogic.setSpeed(90,-70))
         self.mainComm.waitForAnswer()
-
-
-    def run(self):
-        time.sleep(2)
-        self.mainComm.sendBytes('d:125')
-        while 1:
-            #if not self.ballFound:
-            #    self.rotateToFindBall()
-            if not self.ballReached:# and self.ballFound:
-                self.driveToBall()
-            if self.ballReached and not self.ballCentred:
-                self.centreTheBall()
-            if self.ballCentred and not self.basketCentered:
-                self.centreTheBasket()
-            if self.basketCentered:
-                self.throwTheball()
-
-
-            if self.imgHandler.gameStopped:
-                self.mainComm.sendBytes(self.wheelLogic.motorsOff())
-                self.mainComm.waitForAnswer()
-                self.mainComm.closeSerial()
-                break
 
 
 

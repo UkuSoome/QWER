@@ -10,7 +10,7 @@ wheelLogic = WheelMovementLogic.WheelMovementLogic()
 
 mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0')
 
-imageHandler = ImageProcessing.ImageProccessing(mainComm)
+imageHandler = ImageProcessing.ImageProccessing()
 
 gameHandler = GameLogic.GameLogic(imageHandler, mainComm)
 
@@ -19,4 +19,4 @@ imageThread.start()
 
 
 gameThread = threading.Thread(target=gameHandler.run)
-gameThread.start()
+#gameThread.start()

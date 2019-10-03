@@ -14,7 +14,7 @@ def Tresh():
     conf = configuration.configuration()
     vis = vision.vision()
     color_range = conf.get("colors", color_name, default={"min": (0, 0, 0), "max": (179, 255, 255)})
-    mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0')
+    #mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0')
     wheelLogic = WheelMovementLogic.WheelMovementLogic()
     # Create trackbars (sliders) for HSV channels
     cv2.namedWindow("frame")
@@ -56,10 +56,11 @@ def Tresh():
         key = cv2.waitKey(1)
 
         if key & 0xFF == ord("q"):
-            mainComm.sendBytes(wheelLogic.motorsOff())
-            mainComm.waitForAnswer()
-            mainComm.closeSerial()
+            #mainComm.sendBytes(wheelLogic.motorsOff())
+            #mainComm.waitForAnswer()
+            #mainComm.closeSerial()
             break
+        """
         if key == ord('w'):
             print(key)
             mainComm.sendBytes(wheelLogic.setSpeed(90, -100))
@@ -82,7 +83,7 @@ def Tresh():
         if key == ord('n'):
             mainComm.sendBytes("sd:15:0:0")
             mainComm.waitForAnswer()
-
+        """
     # Overwrite color range
     conf.set("colors", color_name, color_range)
     conf.save()
