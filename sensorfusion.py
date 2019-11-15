@@ -134,11 +134,10 @@ def complementary(us_pos, enc_pos):
     ####################################################
     # Lab 09 Task 3: Implement complementary filter.   #
     ####################################################
-    pos = 0.03*us_pos + 0.97 *(comp+enc_pos-enclast)
+    comp = 0.03*us_pos + 0.97 *(comp+enc_pos-enclast)
     print(" COOOOOOOOOOOOOOMP", comp)
     enclast = enc_pos
-    comp = pos
-    return pos
+    return comp
 
 # Draws a position from the ultrasonic sensor to the map.
 def drawUS(pos):
