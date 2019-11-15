@@ -420,7 +420,7 @@ def slowWorker():
         camera_sigma = 55.6
     if enc_pos != None:
         encoder_mu = enc_pos - lastenc
-        encoder_sigma = 10
+        encoder_sigma = 10 * encoder_mu
         lastenc = enc_pos
     
     if CURRENT_LAB09_TASK >= 4:
