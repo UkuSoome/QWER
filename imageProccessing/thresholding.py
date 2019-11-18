@@ -15,7 +15,7 @@ def Tresh():
     vis = vision.vision()
     color_range = conf.get("colors", color_name, default={"min": (0, 0, 0), "max": (179, 255, 255)})
     #mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0')
-    wheelLogic = WheelMovementLogic.WheelMovementLogic()
+#    wheelLogic = WheelMovementLogic.WheelMovementLogic()
     # Create trackbars (sliders) for HSV channels
     cv2.namedWindow("frame")
 
@@ -34,8 +34,8 @@ def Tresh():
     pipeline = rs.pipeline()
     config = rs.config()
     vis.configure_rs_camera()
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 60)
+    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60)
     pipeline.start(config)
 
     while True:

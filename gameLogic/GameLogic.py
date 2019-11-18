@@ -8,16 +8,20 @@ class GameLogic:
     def __init__(self, imgHandler, mainComm, threading):
 
         self.imgHandler = imgHandler
-        self.wheelLogic = WheelMovementLogic.WheelMovementLogic()
+        self.wheelLogic = WheelMovementLogic.WheelMovementLogic() ## 0.023 seda muuda otse sõitmise kiiruse muutmiseks, 0.05-0.1, 0.1 on suht kiire juba
         self.mainComm = mainComm
         self.threading = threading
-        self.ballFound = False
+        self.ballFound = True
         self.ballReached = False
         self.basketCentered = False
         self.ballCentred = False
+        self.ballSideWays = False
+        self.BOB = 0
+
+        self.ballDistance = 0
         self.gameState = "PLAY"
         self.refHandler = RefHandler.RefHandler('0', '0',mainComm)
-        self.screenMidPointX = 375 ##screenX/2
+        self.screenMidPointX = 382 ##screenX/2
         self.screenMidPointY = 240 ##screenY/2
 
         self.basketX = 0
@@ -35,12 +39,17 @@ class GameLogic:
             #    self.rotateToFindBall()
             #self.readMb()
             if self.gameState == "PLAY":
-                if not self.ballReached:# and self.ballFound:
-                    self.driveToBall(50)
-                #if self.ballReached and not self.ballCentred:
-                #    self.centreTheBall()
-                if self.ballReached and not self.basketCentered:
+                if not self.ballFound:
+                    self.rotateToFindBall(10)
+                if self.ballFound and not self.ballReached:
+                    self.driveToBall()
+                if self.ballReached and not self.ballCentred:
+                    self.centreTheBall(10)
+                if self.ballCentred and not self.basketCentered:
                     self.centreTheBasket()
+
+                #if not self.screenMidPointX-20 <= self.ballX <= self.screenMidPointX +20:
+                #    self.ballCentred = False
                 if self.basketCentered:
                     self.throwTheball()
             if self.imgHandler.gameStopped:
@@ -51,35 +60,30 @@ class GameLogic:
 
 
 
-
-    def rotateToFindBall(self):
+    def rotateToFindBall(self,speed):
         #self.readMb()
         self.ballX = self.imgHandler.get_ballX()
-
-        if self.screenMidPointX - 15 <= self.ballX <= self.screenMidPointX + 15:
-            print("leidsin palli")
+        #self.mainComm.sendBytes('d:200')
+        if self.screenMidPointX - 5 <= self.ballX <= self.screenMidPointX + 5:
             self.mainComm.sendBytes(self.wheelLogic.motorsOff())
             self.mainComm.waitForAnswer()
             self.ballFound = True
             return
 
         if self.ballX <= self.screenMidPointX+300:
-            rotateSpeed = 8
-            self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
+            speed = 6
+            self.mainComm.sendBytes(self.wheelLogic.rotateLeft(speed))
         elif self.screenMidPointX-300 <= self.ballX:
-            rotateSpeed = 8
-            self.mainComm.sendBytes(self.wheelLogic.rotateRight(rotateSpeed))
+            speed = 6
+            self.mainComm.sendBytes(self.wheelLogic.rotateRight(speed))
         elif not self.screenMidPointX-300 <= self.ballX and not self.ballX <= self.screenMidPointX+300:
-            rotateSpeed = 20
-            self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
-
+            self.mainComm.sendBytes(self.wheelLogic.rotateLeft(speed))
         self.mainComm.waitForAnswer()
 
-    def centreTheBall(self):
+    def centreTheBall(self,speed):
         #self.readMb()
         ballX = self.imgHandler.get_ballX()
-        rotateSpeed = 5
-        if self.screenMidPointX - 1 <= ballX <= self.screenMidPointX + 1:
+        if self.screenMidPointX - 20 <= ballX <= self.screenMidPointX + 20:
             print("ball centred")
             self.mainComm.sendBytes(self.wheelLogic.motorsOff())
             self.mainComm.waitForAnswer()
@@ -87,69 +91,81 @@ class GameLogic:
             return
 
         if ballX <= self.screenMidPointX+300:
-            self.mainComm.sendBytes(self.wheelLogic.rotateLeft(rotateSpeed))
+            self.mainComm.sendBytes(self.wheelLogic.rotateLeft(speed))
             self.mainComm.waitForAnswer()
         elif ballX >= self.screenMidPointX-300:
-            self.mainComm.sendBytes(self.wheelLogic.rotateRight(rotateSpeed))
+            self.mainComm.sendBytes(self.wheelLogic.rotateRight(speed))
             self.mainComm.waitForAnswer()
 
 
-    def driveToBall(self,speed):
+    def driveToBall(self):
         #self.readMb()
         angle = self.calculateAngleToBall()
-
-        if self.ballY >= 400:
+        if self.ballY >= 450:
             print("jõudsin pallini")
             self.mainComm.sendBytes(self.wheelLogic.motorsOff())
             self.mainComm.waitForAnswer()
             self.ballReached = True
+            if self.BOB == 0:
+                time.sleep(0.5)
             return
 
         if self.ballX <= self.screenMidPointX:
-            self.mainComm.sendBytes(self.wheelLogic.setSpeed(-90 + angle, speed))
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(90 + angle,0,0.08))
         elif self.ballX >= self.screenMidPointX:
-            self.mainComm.sendBytes(self.wheelLogic.setSpeed(-90 - angle, speed))
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(90 - angle,0,0.08))
         self.mainComm.waitForAnswer()
 
 
 
     def calculateAngleToBall(self):
-        self.ballY = self.imgHandler.get_ballY()
-        self.ballX = self.imgHandler.get_ballX()
-        a = abs(self.ballX - self.screenMidPointX)
-        c = self.screenMidPointY * 2 - self.ballY
+        ballY = self.imgHandler.get_ballY()
+        ballX = self.imgHandler.get_ballX()
+        a = abs(ballY - self.screenMidPointY)
+        c = self.screenMidPointX * 2 - ballX
         angle = math.degrees(math.atan(a / c))
         return int(angle)
 
     def centreTheBasket(self):
         #self.readMb()
         basketX = self.imgHandler.get_basketX()
-        if self.screenMidPointX - 3 <= basketX <= self.screenMidPointX + 3:
+        print(basketX)
+        if self.screenMidPointX - 5 <= basketX <= self.screenMidPointX + 5:
             print("korv keskel")
             self.mainComm.sendBytes(self.wheelLogic.motorsOff())
+
             self.mainComm.waitForAnswer()
             self.basketCentered = True
             return
-
-        if basketX > self.screenMidPointX-300:
-            self.mainComm.sendBytes(self.wheelLogic.rotateRightWithBackWheel())
-        elif basketX < self.screenMidPointX+300:
-            self.mainComm.sendBytes(self.wheelLogic.rotateLeftWithBackWheel())
+        omega = self.wheelLogic.calculateOmega(0.074)
+        if self.screenMidPointX-300 <= self.basketX:
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(180,-10,omega,0.019))
+        elif self.screenMidPointX+300 >= self.basketX:
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(180,-10,omega,0.019))
         else:
-            self.mainComm.sendBytes(self.wheelLogic.rotateLeftWithBackWheel())
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(180,-10,omega,0.023))
         self.mainComm.waitForAnswer()
+        if self.BOB == 200:
+            self.ballReached = False
+            self.ballCentred = False
+            self.BOB = 0
+            if self.ballY >= 470:
+                self.wheelLogic.setSpeed(270,-10,1,0.010)
+        self.BOB += 1
 
     def throwTheball(self):
         #self.readMb()
         starttime = time.time()
-        while time.time() - starttime < 1:
+        while time.time() - starttime < 1.3:
             self.mainComm.sendBytes('d:200')
-            self.mainComm.sendBytes(self.wheelLogic.setSpeed(90,-60))
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(90,-30,1,0.023))
             self.mainComm.waitForAnswer()
-        self.ballFound = False
+
         self.ballReached = False
         self.basketCentered = False
         self.ballCentred = False
+        self.ballFound = False
+        self.mainComm.sendBytes('d:125')
 
     def handleMbCommands(self, msg):
         if msg != None:

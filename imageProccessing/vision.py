@@ -75,13 +75,12 @@ class vision:
     def detect_ball(self, mask_in, mask):
         contours, _ = cv2.findContours(mask_in, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contour_list = []
+        closest_ball = max(contours, key=cv2.contourArea, default=0)
         for contour in contours:
             approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
 
-            closest_ball = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(closest_ball)
             if area > 10:
-                #print(area)
                 contour_list.append(contour)
                 rect = cv2.minAreaRect(closest_ball)
                 box = cv2.boxPoints(rect)
@@ -104,7 +103,7 @@ class vision:
 
             x, y, w, h = cv2.boundingRect(cnt)
             aspect_ratio = float(w) / h
-            if aspect_ratio < 0.45:
+            if aspect_ratio < 0.8:
                 rect = cv2.minAreaRect(cnt)
                 x_coordinate = rect[0][0]
                 y_coordinate = rect[1][0]

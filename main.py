@@ -5,7 +5,7 @@ import threading
 from wheelMovementLogic import WheelMovementLogic
 
 
-wheelLogic = WheelMovementLogic.WheelMovementLogic()
+wheelLogic = WheelMovementLogic.WheelMovementLogic() #0.05
 
 
 mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0')
