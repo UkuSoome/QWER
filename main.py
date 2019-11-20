@@ -5,14 +5,11 @@ import threading
 from wheelMovementLogic import WheelMovementLogic
 
 
-wheelLogic = WheelMovementLogic.WheelMovementLogic() #0.05
-
-
-mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0')
+wheelLogic = WheelMovementLogic.WheelMovementLogic()
 
 imageHandler = ImageProcessing.ImageProccessing()
-
-gameHandler = GameLogic.GameLogic(imageHandler, mainComm,threading)
+mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0',imageHandler)
+gameHandler = GameLogic.GameLogic(imageHandler, mainComm)
 
 imageThread = threading.Thread(target=imageHandler.run)
 imageThread.start()
@@ -20,3 +17,7 @@ imageThread.start()
 
 gameThread = threading.Thread(target=gameHandler.run)
 gameThread.start()
+
+
+#mainboardThread = threading.Thread(target=mainComm.run)
+#mainboardThread.start()

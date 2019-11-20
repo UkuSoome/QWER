@@ -75,10 +75,10 @@ class vision:
     def detect_ball(self, mask_in, mask):
         contours, _ = cv2.findContours(mask_in, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contour_list = []
-        closest_ball = max(contours, key=cv2.contourArea, default=0)
+
         for contour in contours:
             approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
-
+            closest_ball = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(closest_ball)
             if area > 10:
                 contour_list.append(contour)
@@ -96,20 +96,17 @@ class vision:
     def detect_basket(self, in_mask, out_mask):
 
         contours, _ = cv2.findContours(in_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        font = cv2.FONT_HERSHEY_COMPLEX
-
         for cnt in contours:
 
             x, y, w, h = cv2.boundingRect(cnt)
             aspect_ratio = float(w) / h
-            if aspect_ratio < 0.8:
+            if aspect_ratio < 3.5:
                 rect = cv2.minAreaRect(cnt)
                 x_coordinate = rect[0][0]
                 y_coordinate = rect[1][0]
                 box = cv2.boxPoints(rect)
                 box = np.int0(box)
-                im = cv2.drawContours(out_mask, [box], 0, (100, 100, 255), 5)
+                im = cv2.drawContours(out_mask, [box], 0, (100, 100, 100), 5)
                 area = cv2.contourArea(cnt)
                 return x_coordinate, y_coordinate
         return -1,-1

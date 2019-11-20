@@ -28,6 +28,9 @@ class ImageProccessing:
     def get_basketX(self):
         return self.basketX
 
+    def get_basketY(self):
+        return self.basketY
+
     def get_ballX(self):
         return self.ballX
 
@@ -71,11 +74,14 @@ class ImageProccessing:
             # Convert to HSV
 
             hsv = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)
+            kernel = np.ones((5, 5), np.uint8)
+            closing = cv2.morphologyEx(hsv, cv2.MORPH_CLOSE, kernel)
+
             #blurred_image = cv2.medianBlur(hsv,5)
 
-            ball_color_mask = self.vision.apply_ball_color_filter(hsv)
-            blue_basket_mask = self.vision.apply_basket_color_filter(hsv, "blue")
-            magenta_basket_mask = self.vision.apply_basket_color_filter(hsv, "magenta")
+            ball_color_mask = self.vision.apply_ball_color_filter(closing)
+            blue_basket_mask = self.vision.apply_basket_color_filter(closing, "blue")
+            magenta_basket_mask = self.vision.apply_basket_color_filter(closing, "magenta")
 
 
             # Depending on which side is the robot the correct mask is picked
@@ -101,7 +107,7 @@ class ImageProccessing:
                 self.ballDistance = self.vision.calculate_distance_with_buffer(ball_distance_buffer)
 
             cv2.line(attack_blue_mask, (320, 0), (320, 480), (100, 255, 180), 2)
-            cv2.line(attack_blue_mask, (0, 240), (640, 240), (100, 255, 180), 2)
+            cv2.line(attack_blue_mask, (0, 223), (640, 223), (100, 255, 180), 2)
 
             # Handle keyboard input
             self.key = cv2.waitKey(1) & 0xFF
