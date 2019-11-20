@@ -1,38 +1,67 @@
 from wheelMovementLogic import WheelMovementLogic
-
-import serial
-import cv2
-import numpy as np
-ser = serial.Serial('/dev/ttyACM0')
-
+from imageProccessing import ImageProcessing
+from mainboardCommunication import MainboardCommunication
+import threading
+import time
 
 
-
-frame = np.zeros((200,200))
-cv2.imshow("frame",frame)
 wheelLogic = WheelMovementLogic.WheelMovementLogic()
+imageHandler = ImageProcessing.ImageProccessing()
+
+mainComm = MainboardCommunication.MainboardCommunication('/dev/ttyACM0',imageHandler)
+
+
+
+#mainboardThread = threading.Thread(target=mainComm.run)
+imageThread = threading.Thread(target=imageHandler.run)
+
+kaugustedict = {
+  ###kaugus: ###kiirus
+    0.56:147,
+    0.84:150,
+    1.10:155,
+    1.52:160,
+    1.93:165,
+    2.29:170,
+}
+imageThread.start()
+#mainboardThread.start()
+time.sleep(2)
+#mainComm.sendBytes('d:125')
+
 while 1:
-    key = cv2.waitKey(0) & 0xff
-    print(key)
+    key = imageHandler.key
+    time.sleep(0.1)
+    omega = wheelLogic.calculateOmega(0.074)
     if key == ord('w'):
-        ser.write(wheelLogic.setSpeed(90,-10).encode("utf-8"))
+        #mainComm.setMotorSpeeds(wheelLogic.setSpeed(90,0,0.06))
+        mainComm.sendBytes(wheelLogic.setSpeed(90, 0, 0.06))
+        mainComm.waitForAnswer()
     if key == ord("s"):
-        ser.write(wheelLogic.setSpeed(270,-10).encode("utf-8"))
+        #mainComm.setMotorSpeeds(wheelLogic.setSpeed(270,0,0.06))
+        mainComm.sendBytes(wheelLogic.setSpeed(270, 0, 0.06))
+        mainComm.waitForAnswer()
     if key == ord("a"):
-        ser.write(wheelLogic.setSpeed(180,-10).encode("utf-8"))
+        #mainComm.setMotorSpeeds(wheelLogic.setSpeed(0,-6.4,0.06))
+        mainComm.sendBytes(wheelLogic.setSpeed(0, -6.4, 0.06))
+        mainComm.waitForAnswer()
     if key == ord("d"):
-        ser.write(wheelLogic.setSpeed(0,-10).encode("utf-8"))
+        #mainComm.setMotorSpeeds(wheelLogic.setSpeed(180,0,0.06))
+        mainComm.sendBytes(wheelLogic.setSpeed(180, 0, 0.06))
+        mainComm.waitForAnswer()
     if key == ord("c"):
-        ser.write(wheelLogic.rotateLeft().encode("utf-8"))
+        #mainComm.setMotorSpeeds(wheelLogic.rotateLeft(10))
+        mainComm.sendBytes(wheelLogic.rotateLeft(10))
+        mainComm.waitForAnswer()
     if key == ord("v"):
-       ser.write(wheelLogic.rotateRight().encode("utf-8"))
-    if key == ord("b"):
-        ser.write("sd:0:0:10\r\n".encode("utf-8"))
+        #mainComm.setMotorSpeeds(wheelLogic.rotateRight(10))
+        mainComm.sendBytes(wheelLogic.rotateRight(10))
+        mainComm.waitForAnswer()
+    if key == ord('k'):
+        #mainComm.setThrowerSpeed('d:200')
+        mainComm.sendBytes('d:200')
+    if key == ord('l'):
+        mainComm.sendBytes('d:125')
     if key == ord('q'):
-        ser.write('sd:0:0:0\r\n'.encode('utf-8'))
-        cv2.destroyAllWindows()
-        ser.close()
+        mainComm.closeSerial()
         break
-cv2.destroyAllWindows()
-ser.write('sd:0:0:0\r\n'.encode('utf-8'))
-ser.close()
