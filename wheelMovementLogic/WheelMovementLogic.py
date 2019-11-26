@@ -6,20 +6,19 @@ class WheelMovementLogic:
 
 
     def __init__(self):
-        ##129,1, 129,1 101,7
-        self.wheelOneAngle = 2
-        self.wheelTwoAngle = 131.1
-        self.wheelThreeAngle = 232.9
+        self.wheelOneAngle = 230.9
+        self.wheelTwoAngle = 129.1
+        self.wheelThreeAngle = 0
         self.wheelDistanceFromCentre = 0.105
         self.wheelSpeedToMainboardUnits = 18.75 * 64 / (2 * math.pi * 0.035 * 60)
 
-    def rotateLeft(self,speed):
-        speedString = str(-speed)
-        return "sd:" + speedString + ":" + speedString + ":" + speedString
+    def rotateLeft(self,speedlimit):
+        wheelspeed = int(speedlimit * self.wheelSpeedToMainboardUnits)
+        return "sd:" + str(-wheelspeed) + ":" + str(-wheelspeed)+ ":" + str(-wheelspeed)
 
-    def rotateRight(self,speed):
-        speedString = str(speed)
-        return "sd:" + speedString + ":" + speedString + ":" + speedString
+    def rotateRight(self,speedlimit):
+        wheelspeed = int(speedlimit * self.wheelSpeedToMainboardUnits)
+        return "sd:" + str(wheelspeed) + ":" + str(wheelspeed) + ":" + str(wheelspeed)
 
     def calculateOneWheelVelocity(self,wheelAngle,angle,speed,omega):
         velocity = int((speed * math.cos(math.radians(angle-wheelAngle))) + self.wheelDistanceFromCentre * omega)

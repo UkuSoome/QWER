@@ -14,6 +14,7 @@ class vision:
         self.ball_noise_kernel = conf.get("vision", "ball_noise_kernel")
         self.blue_basket_color_range = conf.get("colors", conf.get("vision", "blue_basket_color"))
         self.magenta_basket_color_range = conf.get("colors", conf.get("vision", "magenta_basket_color"))
+        self.black_color_range = conf.get("colors", conf.get("vision", "black_color"))
 
     def find_compatible_camera(self):
         ctx = rs.context()
@@ -59,12 +60,20 @@ class vision:
 
         return opening
 
+    def apply_black_filter(self, hsv):
+
+        mask = cv2.inRange(hsv, self.black_color_range["min"], self.black_color_range["max"])
+        kernel = np.ones((5, 5), np.uint8)
+        opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        return opening
+
     def apply_basket_color_filter(self, hsv, color):
         # Apply ball color filter
         if (color == "blue"):
             mask = cv2.inRange(hsv, self.blue_basket_color_range["min"], self.blue_basket_color_range["max"])
             kernel = np.ones((5, 5), np.uint8)
             opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+
         elif (color == "magenta"):
             mask = cv2.inRange(hsv, self.magenta_basket_color_range["min"], self.magenta_basket_color_range["max"])
             kernel = np.ones((5, 5), np.uint8)
@@ -77,7 +86,7 @@ class vision:
         contour_list = []
 
         for contour in contours:
-            approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
+            #approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
             closest_ball = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(closest_ball)
             if area > 10:
@@ -103,10 +112,10 @@ class vision:
             if aspect_ratio < 3.5:
                 rect = cv2.minAreaRect(cnt)
                 x_coordinate = rect[0][0]
-                y_coordinate = rect[1][0]
+                y_coordinate = rect[0][1]
                 box = cv2.boxPoints(rect)
                 box = np.int0(box)
-                im = cv2.drawContours(out_mask, [box], 0, (100, 100, 100), 5)
+                cv2.drawContours(out_mask, [box], 0, (100, 100, 100), 5)
                 area = cv2.contourArea(cnt)
                 return x_coordinate, y_coordinate
         return -1,-1
@@ -114,3 +123,26 @@ class vision:
     def calculate_distance_with_buffer(self, queue):
         average = np.mean(queue)
         return average
+
+
+    def line_on_black(self, in_mask, out_mask):
+        contours, _ = cv2.findContours(in_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        for cnt in contours:
+
+            x, y, w, h = cv2.boundingRect(cnt)
+            aspect_ratio = float(w) / h
+            if aspect_ratio < 1000:
+                rect = cv2.minAreaRect(cnt)
+                x_coordinate1 = int(rect[0][0])
+                y_coordinate1 = int(rect[0][1])
+                x_coordinate2 = int(rect[1][0])
+                y_coordinate2 = int(rect[1][1])
+                box = cv2.boxPoints(rect)
+                #print(box)
+                #box = np.int0(box)
+                #cv2.drawContours(out_mask, [box], 0, (100, 100, 100), 5)
+                cv2.line(out_mask,(x_coordinate1,y_coordinate1),(x_coordinate2,y_coordinate2),(255,0,0), 2)
+                #area = cv2.contourArea(cnt)
+                return x_coordinate1, y_coordinate1, x_coordinate2, y_coordinate2
+        return -1, -1, -1, -1
