@@ -2,7 +2,6 @@ from wheelMovementLogic import WheelMovementLogic
 from refHandler import RefHandler
 import math
 import time
-import numpy as np
 class GameLogic:
 
     def __init__(self, imgHandler, mainComm):
@@ -32,100 +31,142 @@ class GameLogic:
         self.countt = 0
         self.kaugused = {
             ###kaugus: ###kiirus
-            0.52835: 145,
+            0.5059:145, ## töötab
+            0.52835: 145, ## töötab
+            0.65874:145,
             0.66035: 146,
-            0.6976999999999998:147,
+            0.68074:146,
+            0.68165:147,
+            0.6977:147,
             0.71710: 147,
             0.7186:147,
-            0.7490999999999999: 148,
+            0.751:147,
+            0.75265:148, ## töötab
             0.78285:148,
-            0.79115: 149,
-            0.79825:149,
+            0.82704:148,
+            0.82775:149,
+            0.8312:149, ## töötab
+            0.8439:149,
+            0.8618:150, ## töötab
             0.86795: 150,
+            0.8702:150, ## töötab
+            0.8752:150,
             0.88275: 150,
+            0.88505: 150, ## töötab
             0.88615:150,
+            0.8863:150,
             0.902:150,
-            0.92465:150,
-            0.93795:150,
+            0.92115:150,
+            0.9227:151,
+            0.9317:151, ## töötab
+            0.94635:151,
             0.95825:151,
             0.9504:151,
             0.965:151,
             0.97565:151,
             0.97895:151,
             0.9813:151,
+            0.98645:151,
             0.9865:151,
-            1.02655:151,
-            1.02915:151,
-            1.373:152,
-            1.0644:153,
-            1.09345:153,
-            1.10825:153,
-            1.13434:153,
-            1.1366:153,
-            1.14135:153,
-            1.17055:154,
-            1.1860:155,
-            1.2271:155,
+            1.02085:151,
+            1.0246:152, ## töötab
+            1.04305:152,
+            1.06484:152,
+            1.0713:153,
+            1.07945:153, ## töötab
+            1.08:154,
+            1.11965:154, ## töötab
+            1.17175:154, ## Töötab
+            1.19719:154,
+            1.20135:154, ## töötab
+            1.20965:155,
+            1.22715:155, ## töötab
             1.2275:155,
-            1.23205:156,
-            1.2613:156,
-            1.26565:156,
-            1.2629:156,
-            1.2712:156,
-            1.2901:156,
+            1.23125:155, ## töötab
+            1.26545:155, ## töötab
+            1.27925:155, ## töötab
+            1.2834:155,
             1.30755:156,
-            1.3255:157,
-            1.3364:157,
-            1.4242:157,
-            1.4467:158,
-            1.4471:158,
-            1.475:158,
-            1.5087:159,
-            1.5275:160,
-            1.553:159,
-            1.5571:160,
-            1.6753:160,
-            1.74585:162,
-            1.76055:162,
-            1.80865:162,
-            1.86485:162,
-            1.9182:162,
-            1.9982:163,
-            2.0402:163,
+            1.3305:156, ## töötab
+            1.34665:156,
+            1.35425:157,
+            1.36235:157,
+            1.3708:157, ## töötab
+            1.37835:157,
+            1.38145:157, ## töötab
+            1.3823:157,
+            1.40085:157,
+            1.4047:157,
+            1.40494:157,
+            1.4061:157, ## töötab
+            1.42325:157,
+            1.4235:158,
+            1.44035:158, ## töötab
+            1.443:158, ## töötab
+            1.44955:158,
+            1.4547:158, ## töötab
+            1.4894:158,
+            1.49035:159, ## töötab
+            1.50325:158,
+            1.5112:158,
+            1.5214:158,
+            1.55925:158,
+            1.5652:159,
+            1.56695:159, ## töötab
+            1.6041:159,
+            1.61165:159,
+            1.6179:160,
+            1.67515:160,
+            1.68015:160, ## töötab
+            1.73215:161,
+            1.8141:161, ## töötab
+            1.8934:161,
+            1.90965:162,
+            1.96525:163,
+            2.03905:163,
             2.06544:163,
-            2.09435:163,
-            2.1483000000000043:163,
-            2.1875:163,
-            2.22845:169,
-            2.26545:169,
-            2.28615:169,
-            2.31835:170,
-            2.39215:172,
+            2.0785:163,
+            2.0812:163,
+            2.1055:164,
+            2.16035:165,
+            2.17475:165,
+            2.2474:166,
+            2.252:167,
+            2.3444:167,
+            2.4166:169,
+            2.4374:170,
+            2.48670:171,
             2.49354:173,
             2.5123:176,
             2.54025:176,
-            2.64:176,
-            2.7172:182,
-            2.9177:181,
-            3.1465: 181,
-            3.2321: 181,
+            2.63325:176,
+            2.73485:176,
+            2.7436:178,
+            2.78345:179,
+            2.7995:179,
+            2.95425:180,
+            2.98525:182,
             3.4512: 184,
             3.58795: 184,
             3.65775: 185,
-            3.7645: 190,
-            3.94654: 190,
-            4.004: 190,
+            4.0525:189,
             4.0837: 191,
             4.12295: 192,
             4.1653:195,
             4.2365: 195,
-            4.28: 195,
+            4.2636:198,
             4.30895: 198,
-            4.4596: 199,
-            4.5343: 200,
-            4.6036:211,
-            4.71505:213,
-            4.83526:214,
+            4.35335:203,
+            4.38740:203,
+            4.4048:206,
+            4.502:212,
+            4.6108:213,
+            4.686049999999991:217,
+            4.71055:218,
+            4.8038:218,
+            4.79515:223,
+            4.9368:227,
+            5.24445:237,
         }
     def run(self):
         time.sleep(2)
@@ -157,19 +198,42 @@ class GameLogic:
     def adjustDistance(self):
 
         self.ballDistance = self.imgHandler.getBallDistance()
-        if  self.ballDistance <= 0.3:
+        if 0.26 <= self.ballDistance <= 0.3:
             print("palli kaugus")
             self.mainComm.sendBytes(self.wheelLogic.motorsOff())
             self.mainComm.waitForAnswer()
             self.ballDistanced = True
+            timenow = time.time()
+            while time.time() - timenow < 0.3:
+                self.mainComm.sendBytes(self.wheelLogic.motorsOff())
+                self.mainComm.waitForAnswer()
             return
-        if 0.3 <= self.ballDistance <= 3:
-            self.mainComm.sendBytes(self.wheelLogic.setSpeed(90,0,0.01))
+        self.ballDistance = self.imgHandler.getBallDistance()
+        if -1 <= self.ballDistance < 0.26:
+            self.ballDistance = self.imgHandler.getBallDistance()
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(270,0,0.014))
             self.mainComm.waitForAnswer()
-        elif self.ballDistance == -1:
-            self.ballFound = False
-            self.ballReached = False
-            self.ballCentred = False
+            if self.ballDistance == -1:
+                self.BOB += 1
+                if self.BOB >= 800:
+                    self.ballFound = False
+                    self.ballReached = False
+                    self.ballCentred = False
+                    self.BOB = 0
+            else:
+                self.BOB = 0
+        elif 0.3 < self.ballDistance <= 3:
+            self.ballDistance = self.imgHandler.getBallDistance()
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(90,0,0.015))
+            self.mainComm.waitForAnswer()
+            if self.ballDistance == -1:
+                self.BOB += 1
+                if self.BOB >= 800:
+                    self.ballFound = False
+                    self.ballReached = False
+                    self.ballCentred = False
+                    self.BOB = 0
+
     def rotateToFindBall(self):
         self.ballY = self.imgHandler.get_ballY()
         if self.ballY != -1:
@@ -291,7 +355,7 @@ class GameLogic:
         self.basketX = self.imgHandler.get_basketY()
         self.ballY = self.imgHandler.get_ballY()
         omega = self.wheelLogic.calculateOmega(0.068)
-        if self.screenMidPointY+12 <= self.basketY <= self.screenMidPointY + 20:
+        if self.screenMidPointY+20 <= self.basketY <= self.screenMidPointY + 30:
             self.BOB += 1
             self.mainComm.sendBytes(self.wheelLogic.motorsOff())
             self.mainComm.waitForAnswer()
@@ -304,10 +368,10 @@ class GameLogic:
         if self.basketY != -1:
             if 150 <= self.basketY <= 290:
                 speed = 0.015
-            if 0 <= self.basketY < self.screenMidPointY+12:
+            if 0 <= self.basketY < self.screenMidPointY+20:
                 #self.mainComm.setMotorSpeeds(self.wheelLogic.setSpeed(0,omega,0.03))
                 self.mainComm.sendBytes(self.wheelLogic.setSpeed(0, omega, speed))
-            elif self.screenMidPointY +20 <= self.basketY <= 480:
+            elif self.screenMidPointY +30 <= self.basketY <= 480:
                 #self.mainComm.setMotorSpeeds(self.wheelLogic.setSpeed(0,omega,0.03))
                 self.mainComm.sendBytes(self.wheelLogic.setSpeed(180, -omega, speed))
         else:
@@ -329,15 +393,14 @@ class GameLogic:
         for i in range(500):
             basketDistance+=self.imgHandler.getBasketDistance()
         basketDistance = basketDistance / 500
-        #throwerSpeed = 4.5039*(basketDistance**3) - 16.398*(basketDistance**2) + 28.18*basketDistance + 140.6
         throwerSpeed = self.kaugused.get(basketDistance, self.kaugused[min(self.kaugused.keys(), key=lambda k: abs(k - basketDistance))])
         print(throwerSpeed)
         print(basketDistance)
         starttime = time.time()
         while time.time() - starttime <= 2.5:
-            angle = self.calculateAngleToBasket(15)
+            angle = self.calculateAngleToBasket(30)
             self.mainComm.sendBytes('d:'+str(int(throwerSpeed)))
-            if self.basketY <= self.screenMidPointY+30:
+            if self.basketY <= self.screenMidPointY+40:
                 self.mainComm.sendBytes(self.wheelLogic.setSpeed(90 + angle, 0, 0.03))
                 self.mainComm.waitForAnswer()
             elif self.basketY >= self.screenMidPointY+25:
