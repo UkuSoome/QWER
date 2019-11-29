@@ -16,9 +16,10 @@ class GameLogic:
         self.ballSideWays = False
         self.ballDistanced = False
         self.BOB = 0
+        self.BOB2 = 0
         self.ballDistance = 0
-        self.gameState = "PLAY"
-        self.refHandler = RefHandler.RefHandler('B', 'B',mainComm)
+        self.gameState = True
+        self.refHandler = RefHandler.RefHandler('C', 'C',mainComm)
         self.screenMidPointX = 320 ##screenX/2
         self.screenMidPointY = 229 ##screenY/2
 
@@ -43,9 +44,8 @@ class GameLogic:
             0.751:147,
             0.75265:148, ## töötab
             0.78285:148,
-            0.82704:148,
-            0.82775:149,
-            0.8312:149, ## töötab
+            0.7967:149,
+            0.8392:149, ## töötab
             0.8439:149,
             0.8618:150, ## töötab
             0.86795: 150,
@@ -55,20 +55,12 @@ class GameLogic:
             0.88505: 150, ## töötab
             0.88615:150,
             0.8863:150,
-            0.902:150,
-            0.92115:150,
+            0.8924:151,
             0.9227:151,
             0.9317:151, ## töötab
-            0.94635:151,
-            0.95825:151,
-            0.9504:151,
-            0.965:151,
-            0.97565:151,
-            0.97895:151,
-            0.9813:151,
-            0.98645:151,
-            0.9865:151,
-            1.02085:151,
+            0.9387:152,
+            0.9703:152,
+            1.01435:152,
             1.0246:152, ## töötab
             1.04305:152,
             1.06484:152,
@@ -84,16 +76,17 @@ class GameLogic:
             1.2275:155,
             1.23125:155, ## töötab
             1.26545:155, ## töötab
-            1.27925:155, ## töötab
-            1.2834:155,
+            1.26805:156,
             1.30755:156,
             1.3305:156, ## töötab
             1.34665:156,
-            1.35425:157,
-            1.36235:157,
+            1.3553:156,
+            1.36025:156, ## töötab
+            1.36815:156,
             1.3708:157, ## töötab
             1.37835:157,
             1.38145:157, ## töötab
+            1.38185:157, ## töötab
             1.3823:157,
             1.40085:157,
             1.4047:157,
@@ -105,73 +98,151 @@ class GameLogic:
             1.443:158, ## töötab
             1.44955:158,
             1.4547:158, ## töötab
-            1.4894:158,
+            1.4994:158,
             1.49035:159, ## töötab
-            1.50325:158,
-            1.5112:158,
-            1.5214:158,
-            1.55925:158,
+            1.52375:159,
+            1.53105:159,##töötab
+            1.56035:159, ## töötab
             1.5652:159,
             1.56695:159, ## töötab
-            1.6041:159,
-            1.61165:159,
+            1.58195:160,
             1.6179:160,
+            1.64115:160, ## töötab
             1.67515:160,
             1.68015:160, ## töötab
+            1.71955:160,
+            1.72915:161, ## töötab
             1.73215:161,
+            1.7351:161, #töötab
             1.8141:161, ## töötab
-            1.8934:161,
+            1.8184:161, ## töötab
+            1.83145:161,## töötab
+            1.84425:161, ## töötab
+            1.8774:162,
             1.90965:162,
-            1.96525:163,
-            2.03905:163,
-            2.06544:163,
-            2.0785:163,
-            2.0812:163,
+            1.92405:163,
+            1.9536:164,
+            2.05755:164,
             2.1055:164,
-            2.16035:165,
-            2.17475:165,
-            2.2474:166,
-            2.252:167,
-            2.3444:167,
-            2.4166:169,
-            2.4374:170,
-            2.48670:171,
-            2.49354:173,
-            2.5123:176,
-            2.54025:176,
-            2.63325:176,
-            2.73485:176,
-            2.7436:178,
-            2.78345:179,
-            2.7995:179,
-            2.95425:180,
-            2.98525:182,
-            3.4512: 184,
-            3.58795: 184,
-            3.65775: 185,
-            4.0525:189,
-            4.0837: 191,
-            4.12295: 192,
-            4.1653:195,
-            4.2365: 195,
-            4.2636:198,
-            4.30895: 198,
-            4.35335:203,
-            4.38740:203,
-            4.4048:206,
-            4.502:212,
-            4.6108:213,
-            4.686049999999991:217,
-            4.71055:218,
-            4.8038:218,
-            4.79515:223,
-            4.9368:227,
-            5.24445:237,
+            2.12375:164, ## töötab
+            2.1297:165,
+            2.16765:165,
+            2.29265:166, ## töötab
+            2.2968:166,
+            2.30665:166, ## töötab
+            2.31655:166,
+            2.32205:167,
+            2.3522:167, ## töötab
+            2.3523:167, ## töötab
+            2.3583:167,
+            2.36505:167, ## töötab
+            2.37525:167,
+            2.3974:167,
+            2.43155:167,
+            2.46395:167, ## töötab
+            2.47575:168,
+            2.52345:168, ## töötab
+            2.5298:168,
+            2.54115:169, ## töötab
+            2.5513:169, ## töötab
+            2.568988:169,
+            2.5754:169, ## töötab
+            2.59505:169, ## töötab
+            2.65405:169,
+            2.65475:169, ## töötab
+            2.6687:169,
+            2.6977:170,
+            2.7123:171,
+            2.74865:172, ## töötab
+            2.7624:172,
+            2.8025:172,##töötab
+            2.8151:172,
+            2.8207:172,
+            2.8534:173,
+            2.8684:174,
+            3.0447:174,
+            3.0864:174,
+            3.11415:175,
+            3.22085:175,
+            3.25145:175, ## töötab
+            3.29015:178, ## töötab
+            3.30775:178, ## töötab
+            3.3351:178,
+            3.3493:181,
+            3.4432:182,
+            3.5946:183,## töötab
+            3.66665:183,
+            3.82695:184,
+            3.83605:184,
+            3.86745:184, ## töötab
+            3.89205:184,
+            3.92335:184, ## töötab
+            3.96405:185,
+            3.9832:185,
+            4.04305:186, ## töötab
+            4.0443:186,
+            4.04895:187,
+            4.05395:187, ## töötab
+            4.0665:188,
+            4.11135:189,
+            4.1234:189,
+            4.12375:189, ## töötab
+            4.14:190,
+            4.14645:192,
+            4.1532:194,
+            4.25175:194,
+            4.26385:195,
+            4.278:196,
+            4.31475:196,
+            4.3265:196, ## töötab
+            4.32675:196, ## töötab
+            4.3518:198,
+            4.42505:198,
+            4.3589:198, ## töötab
+            4.45995:200,
+            4.4823:206,
+            4.49455:207,
+            4.51355:208,
+            4.52085:209,
+            4.5228:209, ## töötab
+            4.53175:211,
+            4.5355:212, ## töötab
+            4.5455:213,
+            4.56765:214, ## töötab
+            4.5683:214,
+            4.57415:215,
+            4.618:215,
+            4.63355:215,
+            4.66335:217,
+            4.66655:218,
+            4.6735:219,
+            4.7085:219,
+            4.70914:219,
+            4.7116:220,
+            4.7313:221,
+            4.7522:221, ## töötab
+            4.8036:224,
+            4.84225:244,
+            4.8505:246,
+            4.8554:246,
+            4.8639:246,
+            4.87105:247,
+            4.8787:249,
+            4.88135:250,
+            4.9252:250,
+            4.998:250,
+            5.022:250,
+            5.0983:250,
+            5.12575:250, ## töötab
+            5.1757:250,
         }
     def run(self):
         time.sleep(2)
+        reftime = time.time()
         while 1:
-            if self.gameState == "PLAY":
+            if self.gameState:
+                if self.BOB > 1600:
+                    self.BOB = 0
                 if not self.ballFound:
                     self.rotateToFindBall()
                 if self.ballFound and not self.ballReached:
@@ -184,19 +255,34 @@ class GameLogic:
                     self.adjustDistance()
                 if self.ballDistanced:
                     self.throwTheball()
+                """if time.time() - reftime > 0.1:
+                    msg = self.mainComm.readBytes()
+                    if len(msg) > 0:
+                        if msg != None:
+                            command = msg[0]
+                            print(msg)
+                            if command == "<ref":
+                                cmd = self.refHandler.handleMsg(msg[1])
+                                print(cmd)
+                                if cmd == "STOP":
+                                    self.imgHandler.setGameState(False)
+                                    self.mainComm.waitForAnswer()
+                                    self.mainComm.sendBytes(self.wheelLogic.motorsOff())
+                                    self.mainComm.waitForAnswer()
+                                    self.mainComm.closeSerial()
+                                    break"""
             else:
                 self.readMb()
 
             if self.imgHandler.gameStopped:
-                #self.mainComm.setMotorSpeeds(self.wheelLogic.motorsOff())
                 self.mainComm.waitForAnswer()
                 self.mainComm.sendBytes(self.wheelLogic.motorsOff())
                 self.mainComm.waitForAnswer()
                 self.mainComm.closeSerial()
                 break
-
+    def setGameState(self,gameState):
+        self.gameState = gameState
     def adjustDistance(self):
-
         self.ballDistance = self.imgHandler.getBallDistance()
         if 0.26 <= self.ballDistance <= 0.3:
             print("palli kaugus")
@@ -204,7 +290,7 @@ class GameLogic:
             self.mainComm.waitForAnswer()
             self.ballDistanced = True
             timenow = time.time()
-            while time.time() - timenow < 0.3:
+            while time.time() - timenow < 0.15:
                 self.mainComm.sendBytes(self.wheelLogic.motorsOff())
                 self.mainComm.waitForAnswer()
             return
@@ -215,7 +301,7 @@ class GameLogic:
             self.mainComm.waitForAnswer()
             if self.ballDistance == -1:
                 self.BOB += 1
-                if self.BOB >= 800:
+                if self.BOB >= 1500:
                     self.ballFound = False
                     self.ballReached = False
                     self.ballCentred = False
@@ -226,13 +312,12 @@ class GameLogic:
             self.ballDistance = self.imgHandler.getBallDistance()
             self.mainComm.sendBytes(self.wheelLogic.setSpeed(90,0,0.015))
             self.mainComm.waitForAnswer()
-            if self.ballDistance == -1:
-                self.BOB += 1
-                if self.BOB >= 800:
-                    self.ballFound = False
-                    self.ballReached = False
-                    self.ballCentred = False
-                    self.BOB = 0
+            self.BOB += 1
+            if self.BOB >= 1500:
+                self.ballFound = False
+                self.ballReached = False
+                self.ballCentred = False
+                self.BOB = 0
 
     def rotateToFindBall(self):
         self.ballY = self.imgHandler.get_ballY()
@@ -280,10 +365,14 @@ class GameLogic:
             self.mainComm.waitForAnswer()
             self.ballCentred = True
             return
-        speed = 0.09
+        speed = 0.14
         if self.basketY != -1:
-            if 150 <= self.basketY <= 290:
-                speed = 0.03
+            if 210 <= self.basketY <= 250:
+                speed = 0.04
+            elif 170 <= self.basketY <= 290:
+                speed = 0.09
+            elif 50 <= self.basketY <= 430:
+                speed = 0.12
         if self.screenMidPointY+5 <= self.ballY <= 480:
             #self.mainComm.setMotorSpeeds(self.wheelLogic.rotateLeft(speed))
             self.mainComm.sendBytes(self.wheelLogic.rotateLeft(speed))
@@ -319,7 +408,8 @@ class GameLogic:
     def driveToBall(self):
         #self.readMb()
         angle = self.calculateAngleToBall()
-        if self.ballX >= 280:
+        if self.ballX >= 320:
+            self.BOB = 0
             print("jõudsin pallini")
             #self.mainComm.setMotorSpeeds(self.wheelLogic.motorsOff())
             self.mainComm.sendBytes(self.wheelLogic.motorsOff())
@@ -327,19 +417,33 @@ class GameLogic:
             self.ballReached = True
             if self.BOB == 0:
                 time.sleep(0.1)
+
             return
         self.ballY = self.imgHandler.get_ballY()
+        speed = 0.24
+        self.ballX = self.imgHandler.get_ballX()
+        if self.BOB < 10:
+            speed = 0.12
+        if self.ballX >= 260:
+            speed = 0.12
         if self.ballY != -1:
-            if self.ballY<= self.screenMidPointY:
-                #self.mainComm.setMotorSpeeds(self.wheelLogic.setSpeed(90 + angle,0,0.07))
-                self.mainComm.sendBytes(self.wheelLogic.setSpeed(90 + angle,0,0.18))
+            if self.BOB > 500:
+                self.mainComm.sendBytes(self.wheelLogic.motorsOff())
                 self.mainComm.waitForAnswer()
-            elif self.ballY >= self.screenMidPointY:
-                #self.mainComm.setMotorSpeeds(self.wheelLogic.setSpeed(90 - angle,0,0.07))
-                self.mainComm.sendBytes(self.wheelLogic.setSpeed(90 - angle,0,0.18))
-                self.mainComm.waitForAnswer()
+                self.ballFound = False
+                self.BOB = 0
+                return
         else:
-            self.ballFound = False
+            self.BOB = 0
+        if self.ballY<= self.screenMidPointY:
+            #self.mainComm.setMotorSpeeds(self.wheelLogic.setSpeed(90 + angle,0,0.07))
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(90 + angle,0,speed))
+            self.mainComm.waitForAnswer()
+        elif self.ballY >= self.screenMidPointY:
+            #self.mainComm.setMotorSpeeds(self.wheelLogic.setSpeed(90 - angle,0,0.07))
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(90 - angle,0,speed))
+            self.mainComm.waitForAnswer()
+        self.BOB += 1
 
 
     def calculateAngleToBall(self):
@@ -356,18 +460,25 @@ class GameLogic:
         self.ballY = self.imgHandler.get_ballY()
         omega = self.wheelLogic.calculateOmega(0.068)
         if self.screenMidPointY+20 <= self.basketY <= self.screenMidPointY + 30:
-            self.BOB += 1
             self.mainComm.sendBytes(self.wheelLogic.motorsOff())
             self.mainComm.waitForAnswer()
-            if self.BOB > 15:
-                self.basketCentered = True
-                self.BOB = 0
+            if self.BOB2 > 30:
+                if self.basketY != -1:
+                    self.basketCentered = True
+                self.BOB2 = 0
+            else:
+                self.ballCentred = False
+            self.BOB2 +=1
             return
-        speed = 0.05
+        speed = 0.07
         self.basketY = self.imgHandler.get_basketY()
         if self.basketY != -1:
-            if 150 <= self.basketY <= 290:
+            if 180 <= self.basketY <= 260:
                 speed = 0.015
+            elif 120 <= self.basketY <= 320:
+                speed = 0.020
+            elif 80 <= self.basketY <= 430:
+                speed = 0.045
             if 0 <= self.basketY < self.screenMidPointY+20:
                 #self.mainComm.setMotorSpeeds(self.wheelLogic.setSpeed(0,omega,0.03))
                 self.mainComm.sendBytes(self.wheelLogic.setSpeed(0, omega, speed))
@@ -376,9 +487,9 @@ class GameLogic:
                 self.mainComm.sendBytes(self.wheelLogic.setSpeed(180, -omega, speed))
         else:
             #self.mainComm.setMotorSpeeds(self.wheelLogic.setSpeed(0,omega,0.03))
-            self.mainComm.sendBytes(self.wheelLogic.setSpeed(0, omega, 0.07))
+            self.mainComm.sendBytes(self.wheelLogic.setSpeed(0, omega, 0.09))
         self.mainComm.waitForAnswer()
-        if self.BOB == 150:
+        if self.BOB == 250:
             self.ballReached = False
             self.ballCentred = False
             self.BOB = 0
@@ -423,12 +534,11 @@ class GameLogic:
                 cmd = self.refHandler.handleMsg(msg[1])
                 print(cmd)
                 if cmd == "START":
-                    self.gameState = "PLAY"
-
-                if cmd == "STOP":
-                    self.gameState = "STOP"
-
-                if cmd == "PING":
+                    self.gameState = True
+                elif cmd == "STOP":
+                    self.gameState = False
+                    return
+                elif cmd == "PING":
                     print("Sending ACK")
 
     def readMb(self):

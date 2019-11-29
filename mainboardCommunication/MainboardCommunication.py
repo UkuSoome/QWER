@@ -15,7 +15,8 @@ class MainboardCommunication:
         self.throwerSpeed = msg
     def readBytes(self):
         if self.ser.in_waiting:
-            line = self.ser.readline().decode("ascii")
+            line = self.ser.readline().decode("ascii").rstrip()
+            self.ser.flush()
             return line.split(":")
         return []
 

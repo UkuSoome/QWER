@@ -18,6 +18,3 @@ imageThread.start()
 gameThread = threading.Thread(target=gameHandler.run)
 gameThread.start()
 
-
-#mainboardThread = threading.Thread(target=mainComm.run)
-#mainboardThread.start()

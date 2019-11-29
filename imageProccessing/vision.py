@@ -78,7 +78,6 @@ class vision:
             mask = cv2.inRange(hsv, self.magenta_basket_color_range["min"], self.magenta_basket_color_range["max"])
             kernel = np.ones((5, 5), np.uint8)
             opening = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-
         return opening
 
     def detect_ball(self, mask_in, mask):
@@ -106,17 +105,17 @@ class vision:
 
         contours, _ = cv2.findContours(in_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
-
+            area = cv2.contourArea(cnt)
             x, y, w, h = cv2.boundingRect(cnt)
             aspect_ratio = float(w) / h
-            if aspect_ratio < 3.5:
+            if aspect_ratio < 3.5 and area >=100:
                 rect = cv2.minAreaRect(cnt)
                 x_coordinate = rect[0][0]
                 y_coordinate = rect[0][1]
                 box = cv2.boxPoints(rect)
                 box = np.int0(box)
                 cv2.drawContours(out_mask, [box], 0, (100, 100, 100), 5)
-                area = cv2.contourArea(cnt)
+
                 return x_coordinate, y_coordinate
         return -1,-1
 

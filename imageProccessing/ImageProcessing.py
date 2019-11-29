@@ -24,6 +24,11 @@ class ImageProccessing:
         self.blackAreaX = 0
         self.blackAreaY = 0
         self.gameStopped = False
+        self.blueBasket = True
+        self.gameState = True
+
+    def setGameState(self,gameState):
+        self.gameState = gameState
 
     def get_basketX(self):
         return self.basketX
@@ -76,25 +81,31 @@ class ImageProccessing:
             # Convert to HSV
 
             hsv = cv2.cvtColor(color_image, cv2.COLOR_BGR2HSV)
-            kernel = np.ones((3,3), np.uint8)
-            closing = cv2.morphologyEx(hsv, cv2.MORPH_OPEN, kernel)
+            #qqqqqqkernel = np.ones((3,3), np.uint8)
+            #closing = cv2.morphologyEx(hsv, cv2.MORPH_OPEN, kernel)
             #blurred_image = cv2.medianBlur(hsv,5)
 
-            ball_color_mask = self.vision.apply_ball_color_filter(closing)
-            blue_basket_mask = self.vision.apply_basket_color_filter(closing, "blue")
-            magenta_basket_mask = self.vision.apply_basket_color_filter(closing, "magenta")
+            ball_color_mask = self.vision.apply_ball_color_filter(hsv)
+            blue_basket_mask = self.vision.apply_basket_color_filter(hsv, "blue")
+            magenta_basket_mask = self.vision.apply_basket_color_filter(hsv, "magenta")
             ##black_color_mask = self.vision.apply_black_filter(closing)
 
 
             # Depending on which side is the robot the correct mask is pickedqq
-            attack_blue_mask = cv2.bitwise_xor(blue_basket_mask, ball_color_mask)
-            ##attack_magenta_mask = cv2.bitwise_xor(magenta_basket_mask, ball_color_mask)
+            if self.blueBasket:
+                attack_blue_mask = cv2.bitwise_xor(blue_basket_mask, ball_color_mask)
+                self.basketX, self.basketY = self.vision.detect_basket(blue_basket_mask, attack_blue_mask)
+                self.ballX, self.ballY = self.vision.detect_ball(ball_color_mask, attack_blue_mask)
+            else:
+                attack_magenta_mask = cv2.bitwise_xor(magenta_basket_mask, ball_color_mask)
+                self.basketX, self.basketY = self.vision.detect_basket(magenta_basket_mask, attack_magenta_mask)
+                self.ballX, self.ballY = self.vision.detect_ball(ball_color_mask, attack_magenta_mask)
 
-            self.basketX, self.basketY = self.vision.detect_basket(blue_basket_mask,attack_blue_mask)
-            self.ballX, self.ballY = self.vision.detect_ball(ball_color_mask,attack_blue_mask)
-            ##self.blackAreaX1, self.ballY1, self.blackAreaX2, self.ballY2 = self.vision.line_on_black(black_color_mask,
-            ##                                                                                         attack_blue_mask)
-
+            #self.basketX, self.basketY = self.vision.detect_basket(magenta_basket_mask, attack_magenta_mask)
+            #self.ballX, self.ballY = self.vision.detect_ball(ball_color_mask, attack_magenta_mask)
+            """self.blackAreaX1, self.ballY1, self.blackAreaX2, self.ballY2 = self.vision.line_on_black(black_color_mask,
+                                                                                                     attack_blue_mask)
+            """
             if self.basketX != -1:
                 basket_distance = depth_frame.get_distance(int(float(self.basketX)), int(float(self.basketY)))
                 rounded_basket_distance = round(basket_distance,3)
@@ -113,9 +124,12 @@ class ImageProccessing:
                 else:
                     self.ballDistance = -1
 
-
-            cv2.line(attack_blue_mask, (320, 0), (320, 480), (100, 255, 180), 2)
-            cv2.line(attack_blue_mask, (0, 229), (640, 229), (100, 255, 180), 2)
+            if self.blueBasket:
+                cv2.line(attack_blue_mask, (320, 0), (320, 480), (100, 255, 180), 2)
+                cv2.line(attack_blue_mask, (0, 229), (640, 229), (100, 255, 180), 2)
+            else:
+                cv2.line(attack_magenta_mask, (320, 0), (320, 480), (100, 255, 180), 2)
+                cv2.line(attack_magenta_mask, (0, 229), (640, 229), (100, 255, 180), 2)
 
             # Handle keyboard input
             self.key = cv2.waitKey(1) & 0xFF
@@ -123,7 +137,8 @@ class ImageProccessing:
             if self.key == ord("q"):
                 self.gameStopped = True
                 break
-
+            if self.gameState == False:
+                break
             frame_counter += 1
 
             if frame_counter % 10 == 0:
@@ -133,13 +148,24 @@ class ImageProccessing:
                 frame_counter_start = time.time()
 
             if self.basketX != -1:
-                cv2.putText(attack_blue_mask, "BASKET DISTANCE: " + str(rounded_basket_distance), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 255, 255))
+                if self.blueBasket:
+                    cv2.putText(attack_blue_mask, "BASKET DISTANCE: " + str(rounded_basket_distance), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 255, 255))
 
-            if self.ballX != -1:
-                cv2.putText(attack_blue_mask, "BALL DISTANCE: " + str(rounded_ball_distance), (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 255, 255))
+                else:
+                    cv2.putText(attack_magenta_mask, "BASKET DISTANCE: " + str(rounded_basket_distance), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 255, 255))
 
-            cv2.putText(attack_blue_mask, str(fps), (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0))
+            #if self.ballX != -1:
+                #if self.blueBasket:
+                    #cv2.putText(attack_magenta_mask, "BALL DISTANCE: " + str(rounded_ball_distance), (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 255, 255))
+
+                #else:
+                    #cv2.putText(attack_magenta_mask, "BALL DISTANCE: " + str(rounded_ball_distance), (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 255, 255))
+
+            cv2.putText(attack_blue_mask, str(fps), (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
 
             cv2.imshow("frame", color_image)
-            cv2.imshow("ball_color", attack_blue_mask)
+            if self.blueBasket:
+                cv2.imshow("ball_color", attack_blue_mask)
+            else:
+                cv2.imshow("ball_color",  attack_magenta_mask)
         cv2.destroyAllWindows()
